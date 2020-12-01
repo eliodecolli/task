@@ -1,10 +1,10 @@
 import {Token, TokenType} from './tokenizer'
 import {default as functions} from './ast/functions'
-import {default as operators} from './ast/operators'
-import INode from './ast/node'
+import {default as operators, Operator} from './ast/operators'
+import {INode, Variable} from './ast/node'
 
 interface IParser {
-    parse(startIndex: number): [INode, number];
+    parse(): INode[];
 }
 
 
@@ -21,98 +21,84 @@ class Parser implements IParser {
         }
     }
 
-    private parseFunctionArguments(startIndex: number, tokens: Token[]): [number[], number] {
-        let retval: number[] = [];
+    private buildStack(): INode[] {
+        let stack: INode[] = [];
 
-        let i = startIndex;
-        let cTokenType: number = 0;
+        let ops: INode[] = [];
 
-        while(cTokenType != TokenType.RParen) {
-            let x = tokens[i];
+        for(let token of this.tokens) {
+            
+            switch(token.type) {
+                case TokenType.Variable: {
+                    stack.push(new Variable(parseFloat(token.value)));
+                    break;
+                }
 
-            cTokenType = x.type;
-            if(cTokenType == TokenType.Character && tokens[i+1].type != TokenType.Variable) {   // end of the line => (NUM,NUM,) or (NUM,,)
-                throw new Error(`Function was expecting a parameter.`);
-            }
+                case TokenType.Operator: {
+                    let cOp = operators[token.value]();
+                    if(ops.length > 0) {
+                        let top = <Operator>ops[ops.length-1];
 
-            if(cTokenType == TokenType.Character && x.value != ',') {  // it's not a comma
-                throw new Error(`Invalid character ${x.value} inside function arguments.`);
-            }
-
-            if(cTokenType == TokenType.Variable) {
-                retval.push(parseFloat(x.value));
-            }
-            i++;
-        }
-
-        let steps = i - startIndex;
-        return [retval, steps];
-    }
-
-    parse(startIndex: number): [INode, number] {
-        let node: INode = {children: []};
-
-        let i = startIndex;
-
-        let opStack: Token[] = [];
-        let valStack: number[] = [];
-
-        while(i < this.tokens.length) {
-            let x = this.tokens[i];
-
-            switch(x.type) {
-                case TokenType.Character: {    // functions are considered as characters
-                    if(functions[x.value]) {
-                        if(this.tokens[i+1] == undefined || this.tokens[i+1].type != TokenType.LParen){
-                            throw new Error(`[parser]: Cannot parse function "${x.value}"`);
+                        if(top.priority >= cOp.priority && top.tokenVal !== '(') {
+                            stack.push(<INode>ops.pop());
                         }
-
-                        let args = this.parseFunctionArguments(i, this.tokens);
-                        node = functions[x.value](args[0]);
-                        i += args[1];
                     }
+                    ops.push(cOp);
                     break;
                 }
 
                 case TokenType.LParen: {
-                    // it's a new day, it's a new life, it's a neew NOOOOODEE
-                    let parsed = this.parse(i + 1);   // we don't wanna end up in the same position and trigger a stack overflow do we?
-
-                    node = parsed[0];
-                    i += parsed[1] + 1;
+                    ops.push(operators['(']());
                     break;
                 }
 
-                case TokenType.RParen: {   // apparently we're done with this node
-                    return [node, i - startIndex];
-                }
-
-                case TokenType.Operator: {
-                    opStack.push(x);
-                    break;
-                }
-
-                case TokenType.Variable: {
-                    valStack.push(parseFloat(x.value));
-
-                    if(valStack.length == 2) {
-                        // time to return the value
-
-                        let op = opStack.pop().value;
-                        let opNode = operators[op](<number>valStack.pop(), <number>valStack.pop());
-
-                        node.children.push(opNode);
+                case TokenType.RParen: {
+                    let i = ops.length - 1;
+                    while((<Operator>ops[i]).tokenVal !== '(') {
+                        stack.push(<INode>ops.pop());
+                        i--;
                     }
+
+                    ops.pop();  // remove the last '('
+                    break;
+                }
+
+                case TokenType.Character: {
+                    ops.push(functions[token.value]());
                     break;
                 }
             }
-
-            i++;
         }
 
-        return [node, i-startIndex];
+        while(ops.length > 0) {
+            stack.push(<INode>ops.pop());   // add the remaining operators
+        }
+
+        return stack;
     }
 
+    private recursiveTree(stack: INode[]) : INode[] {
+        let retval: INode[] = [];
+
+        let cnode = stack.pop();
+        if(cnode)
+            retval.push(cnode);
+
+        if(cnode !instanceof Variable) {
+            
+        }
+
+        return retval;
+    }
+
+    parse(): INode[] {
+        let stack = this.buildStack();
+
+        let tree: INode[] = [];
+        for(let i = stack.length - 1; i >= 0; i--) {    // go backwards
+            let cNode = 
+        }
+    }
 }
 
 

@@ -19,4 +19,4 @@ class Variable implements INode {
     children: INode[] = [];
 }
 
-export default INode;
+export {INode, Variable};

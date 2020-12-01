@@ -1,15 +1,13 @@
 import {Tokenizer} from "./core/tokenizer";
 import Parser from './core/parser'
 
-const formula = "12+10.2*(3+3)+sin(30)";
+const formula = "sin(max(2, 3)+sin(45))";
 
 
 let tokenizer = new Tokenizer(formula);
 let result = tokenizer.tokenize();
 
-let pr = new Parser(result);
+let parser = new Parser(result);
+let parsed = parser.parse();
 
-let parsed = pr.parse(0);
-
-
-console.log(parsed);
+console.log(result);

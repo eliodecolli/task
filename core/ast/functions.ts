@@ -1,57 +1,42 @@
-import INode from './node'
+import {INode} from './node'
 
-class Function implements INode{
-
-    private args: number[] = [];
-
-    public get arguments(): number[] {
-        return this.args;
-    }
-
-    constructor(args: number[]){
-        this.args = args;
-    }
-
+class Function implements INode {
     evaluate(): number {
         return  0;
+    }
+
+    get priority(): number{
+        return 3;   // maybe we'll add power :)
     }
 
     children: INode[] = [];
 }
 
 class Sine extends Function {
-
-    constructor(args: number[]) {
-        if(args.length > 1) {
-            throw new Error(`Sine functions expect a single argument.`);
-        }
-
-        super(args);
-    }
-
     evaluate(): number {
-        return Math.sin(this.arguments[0]);
+        return Math.sin(this.children[0].evaluate());
     }
 }
 
 class Cosine extends Function {
-
-    constructor(args: number[]) {
-        if(args.length != 1) {
-            throw new Error(`Cosine functions expect a single argument.`);
-        }
-
-        super(args);
-    }
-
     evaluate(): number {
-        return Math.cos(this.arguments[0]);
+        return Math.cos(this.children[0].evaluate());
     }
 }
 
-const Functions: {[id:string]: (args: number[]) => Function} = {
-    'sin': a => new Sine(a),
-    'cos': a => new Cosine(a)
+class Max extends Function {
+    evaluate(): number {
+        let args: number[] = [];
+
+        this.children.forEach(x => args.push(x.evaluate()));
+        return Math.max(...args);
+    }
+}
+
+const Functions: {[id:string]: () => Function} = {
+    'sin': () => new Sine(),
+    'cos': () => new Cosine(),
+    'max': () => new Max()
 }
 
 export default Functions;

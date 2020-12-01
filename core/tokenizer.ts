@@ -21,7 +21,8 @@ enum TokenType {
     Character = 1,
     LParen = 2,
     RParen = 3,
-    Operator = 4
+    Operator = 4,
+    Default = 5
 }
 
 interface ITokenizer {
@@ -47,11 +48,15 @@ class Tokenizer implements ITokenizer {
         }
         else if(c == ')'){
             return TokenType.RParen;
-        } else if(this.operators[c]) {
+        }
+        else if(this.operators[c]) {
             return TokenType.Operator;
         }
-        
-        return TokenType.Character;
+        else if(c >= 'a' && c <= 'z') {
+            return TokenType.Character;
+        }
+
+        return TokenType.Default;
     }
 
     constructor(formula: string) {
@@ -61,12 +66,27 @@ class Tokenizer implements ITokenizer {
     tokenize(): Token[] {
         let retval: Token[] = [];
 
-        let cType = 0;
+        let cType = TokenType.Default;
         let cVal = '';
         this.formula.split('').forEach((x, i) => {
+            if(cVal === '') {
+                cVal = x;
+                cType = this.checkType(x);
+                return;
+            }
+
+            if(x === ' ')
+                return;
+
             if(cType == this.checkType(x)) { // we're still not past the current token
+
                 if(cType == TokenType.Variable && (x == '.' && cVal.endsWith('.'))) {  // floating point numbers must be of the format NUMBER.NUMBER
                     throw new Error(`Invalid '.' after token "${cVal}"`);
+                } 
+                else if(cType == TokenType.LParen || cType == TokenType.RParen) {
+                    // add the previous token and clear it up then
+                    retval.push(new Token(cType, cVal));
+                    cVal = '';
                 }
                 cVal += x;  // keep on building the current token
             }
@@ -81,11 +101,10 @@ class Tokenizer implements ITokenizer {
                 if(cType != TokenType.LParen && retval[retval.length - 1].type == TokenType.Character) {     // after a function we expect a '('
                     throw new Error(`Invalid token ${cVal} after function "${retval[retval.length - 1].value}"`);
                 }
-
-                if(i == this.formula.length - 1) {
-                    let lastToken = new Token(cType, cVal);
-                    retval.push(lastToken);
-                }
+            }
+            if(i == this.formula.length - 1) {
+                let lastToken = new Token(cType, cVal);
+                retval.push(lastToken);
             }
         });
         

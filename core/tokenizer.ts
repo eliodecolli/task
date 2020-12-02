@@ -22,7 +22,8 @@ enum TokenType {
     LParen = 2,
     RParen = 3,
     Operator = 4,
-    Default = 5
+    Comma = 5,
+    Default = 6
 }
 
 interface ITokenizer {
@@ -32,7 +33,7 @@ interface ITokenizer {
 class Tokenizer implements ITokenizer {
     private formula: string;
 
-    private operators: {[id:string]: string}= {
+    private operators: { [id:string]: string } = {
         '+': 'add',
         '-': 'sub',
         '*': 'mul',
@@ -55,12 +56,15 @@ class Tokenizer implements ITokenizer {
         else if(c >= 'a' && c <= 'z') {
             return TokenType.Character;
         }
+        else if(c == ',') {
+            return TokenType.Comma;
+        }
 
         return TokenType.Default;
     }
 
     constructor(formula: string) {
-        this.formula = formula;
+        this.formula = formula.trim();
     }
 
     tokenize(): Token[] {

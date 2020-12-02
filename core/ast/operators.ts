@@ -1,25 +1,7 @@
 import {INode} from './node'
+import {TokenType} from '../tokenizer'
 
 class Operator implements INode {
-
-    private _op1: number;
-    private _op2: number;
-    
-    public get op1(): number {
-        return this._op1;
-    }
-
-    public get op2(): number {
-        return this._op2;
-    }
-
-    public set op1(val: number) {
-        this._op1 = val;
-    }
-
-    public set op2(val: number) {
-        this._op2 = val;
-    }
 
     evaluate(): number {
         return 0;   // to be overriden
@@ -36,23 +18,25 @@ class Operator implements INode {
     }
 
     children: INode[] = [];
+
+    type: TokenType = TokenType.Operator;
 }
 
 class Add extends Operator {
     evaluate() : number {
-        return this.op1 + this.op2;
+        return this.children[1].evaluate() + this.children[0].evaluate();
     }
 }
 
 class Subtract extends Operator {
     evaluate(): number {
-        return this.op1 - this.op2;
+        return this.children[1].evaluate() - this.children[0].evaluate();
     }
 }
 
 class Multiply extends Operator {
     evaluate(): number {
-        return this.op1 * this.op2;
+        return this.children[1].evaluate() * this.children[0].evaluate();
     }
 
     get priority(): number {
@@ -62,7 +46,7 @@ class Multiply extends Operator {
 
 class Divide extends Operator { 
     evaluate(): number {
-        return this.op1 / this.op2;
+        return this.children[1].evaluate() / this.children[0].evaluate();
     }
 
     get priority(): number {
@@ -82,12 +66,16 @@ class LParen extends Operator {
     get priority(): number {
         return -1;
     }
+
+    type = TokenType.LParen;
 }
 
 class RParen extends LParen {
     get tokenVal(): string {
         return ')';
     }
+
+    type = TokenType.RParen;
 }
 
 const Operators: {[id:string]: () => Operator} = {

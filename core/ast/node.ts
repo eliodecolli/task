@@ -1,6 +1,10 @@
+import { TokenType } from "../tokenizer";
+
 interface INode{
     children: INode[];
     evaluate(): number;
+
+    type: TokenType;
 }
 
 
@@ -17,6 +21,18 @@ class Variable implements INode {
     }
 
     children: INode[] = [];
+
+    type: TokenType = TokenType.Variable;
 }
 
-export {INode, Variable};
+class Comma implements INode {
+    evaluate(): number {
+        return 0;
+    }
+
+    children: INode[] = [];
+
+    type: TokenType = TokenType.Comma;
+}
+
+export {INode, Variable, Comma};

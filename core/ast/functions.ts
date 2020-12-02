@@ -1,3 +1,4 @@
+import { TokenType } from '../tokenizer';
 import {INode} from './node'
 
 class Function implements INode {
@@ -6,10 +7,12 @@ class Function implements INode {
     }
 
     get priority(): number{
-        return 3;   // maybe we'll add power :)
+        return 3;   // functions are supposed to have higher precedence
     }
 
     children: INode[] = [];
+
+    type: TokenType = TokenType.Character;
 }
 
 class Sine extends Function {

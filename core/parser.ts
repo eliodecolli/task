@@ -46,7 +46,7 @@ class Parser implements IParser {
     }
 
     // the following function does not work as intented, because I need to pass some more lexical phases before going into this one.
-    private parseFunction(startIndex: number, tokens: Token[], parent: INode) : [INode, number] {
+    /*private parseFunction(startIndex: number, tokens: Token[], parent: INode) : [INode, number] {
         let steps = startIndex;
 
         let tokensTab: Token[] = [];
@@ -63,11 +63,11 @@ class Parser implements IParser {
                 steps += built[1];
                 tokensTab = [];
             }
-            /*else if(token.type == TokenType.Character) {
+            else if(token.type == TokenType.Character) {
                 let built = this.parseFunction(steps + 2, tokens, functions[token.value]());
                 parent.children.push(built[0]);
                 steps += built[1] + 1;
-            }*/
+            }
             else if(token.type == TokenType.RParen) {
                 steps++;
                 break;
@@ -85,7 +85,7 @@ class Parser implements IParser {
         }
 
         return [parent, steps - startIndex];
-    }
+    }*/
 
     // the following is a Shunting-Yard Algorithm implementation, we use it to convert tokens into nodes and arrange them in a postfix notation (Reversed Polish Notation)
     private buildStack(tokens: Token[]): [INode[], number] {
@@ -97,8 +97,6 @@ class Parser implements IParser {
         let start = 0;
 
         for(let token of tokens) {
-            //let token = <Token>tokens.pop();
-
             if(start >= tokens.length)
                 break;
 
@@ -161,7 +159,8 @@ class Parser implements IParser {
     }
 
     parse(): INode {
-        return this.createTree(this.buildStack(this.tokens)[0]);
+        let postFixStack = this.buildStack(this.tokens)[0];
+        return this.createTree(postFixStack);
     }
 }
 

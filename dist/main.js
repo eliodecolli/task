@@ -93,11 +93,9 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         inputElement.setAttribute('type', 'text');
         inputElement.setAttribute('class', 'calc-input');
         inputElement.setAttribute('data-order', 'primary'); // data-order is used to differentiate between the input element and the result element
-        let resultElement = document.createElement('input');
-        resultElement.setAttribute('type', 'text');
-        resultElement.setAttribute('class', 'calc-result');
-        resultElement.setAttribute('data-order', 'secondary'); // ^
-        resultElement.disabled = true;
+        let innerSpan = document.createElement('span');
+        innerSpan.setAttribute('class', 'calc-result');
+        innerSpan.setAttribute('data-order', 'secondary'); // ^
         /// maybe this logic can also be added to the base component ?
         inputElement.addEventListener('change', x => {
             if (this._inputElement) {
@@ -107,23 +105,30 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
             }
         });
         retval.appendChild(inputElement);
-        retval.appendChild(resultElement);
+        retval.appendChild(innerSpan);
+        retval.classList.add('calc-valid');
+        //retval.appendChild(resultElement);
         return retval;
     }
     evaluate() {
-        var _a, _b;
+        var _a, _b, _c, _d, _e;
         if (this._text.length > 0) {
             let expEvaluator = new expressionEvaluator_1.default();
             let computed = expEvaluator.evaluate(this._text);
+            let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span[data-order='secondary']");
             if (computed) {
                 this._value = computed;
                 this._isValid = true;
-                ((_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("input[data-order='secondary']")).value = this._value.toString();
+                resultSpan.innerText = this._value.toString();
+                (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.remove('calc-invalid');
+                (_c = this._inputElement) === null || _c === void 0 ? void 0 : _c.classList.add('calc-valid');
             }
             else {
                 this._value = undefined;
                 this._isValid = false;
-                ((_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.querySelector("input[data-order='secondary']")).value = '?';
+                resultSpan.innerText = '?';
+                (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.classList.add('calc-invalid');
+                (_e = this._inputElement) === null || _e === void 0 ? void 0 : _e.classList.remove('calc-valid');
             }
             this.subscribers['valueChanged'].forEach(x => x(this));
             this.subscribers['isValidChanged'].forEach(x => x(this));
@@ -592,7 +597,7 @@ calc.registerEventListener('textChanged', x => {
 calc.registerEventListener('isValidChanged', x => {
     let item = document.getElementById('validId');
     if (item) {
-        item.innerText = x.isValid;
+        item.innerText = x.isValid.toString();
     }
 });
 calc.registerEventListener('valueChanged', _ => console.log('the value has changed'));

@@ -26,11 +26,9 @@ class CalculatorInput extends BaseTextInput {
         inputElement.setAttribute('class', 'calc-input');
         inputElement.setAttribute('data-order', 'primary');    // data-order is used to differentiate between the input element and the result element
 
-        let resultElement = document.createElement('input');
-        resultElement.setAttribute('type', 'text');
-        resultElement.setAttribute('class', 'calc-result');
-        resultElement.setAttribute('data-order', 'secondary');  // ^
-        resultElement.disabled = true;
+        let innerSpan = document.createElement('span');
+        innerSpan.setAttribute('class', 'calc-result');
+        innerSpan.setAttribute('data-order', 'secondary');  // ^
 
         /// maybe this logic can also be added to the base component ?
         inputElement.addEventListener('change', x => {
@@ -42,7 +40,9 @@ class CalculatorInput extends BaseTextInput {
         });
 
         retval.appendChild(inputElement);
-        retval.appendChild(resultElement);
+        retval.appendChild(innerSpan);
+        retval.classList.add('calc-valid');
+        //retval.appendChild(resultElement);
 
         return retval;
     }
@@ -52,17 +52,23 @@ class CalculatorInput extends BaseTextInput {
             let expEvaluator = new ExpressionEvaluator();
             let computed = expEvaluator.evaluate(this._text);
 
+            let resultSpan = this._inputElement?.querySelector("span[data-order='secondary']") as HTMLSpanElement;
+
             if(computed) {
                 this._value = computed;
                 this._isValid = true;
 
-                (this._inputElement?.querySelector("input[data-order='secondary']") as HTMLInputElement).value = this._value.toString();
+                resultSpan.innerText = this._value.toString();
+                this._inputElement?.classList.remove('calc-invalid');
+                this._inputElement?.classList.add('calc-valid');
             }
             else {
                 this._value = undefined;
                 this._isValid = false;
 
-                (this._inputElement?.querySelector("input[data-order='secondary']") as HTMLInputElement).value = '?';
+                resultSpan.innerText = '?';
+                this._inputElement?.classList.add('calc-invalid');
+                this._inputElement?.classList.remove('calc-valid');
             }
 
             this.subscribers['valueChanged'].forEach(x => x(this));

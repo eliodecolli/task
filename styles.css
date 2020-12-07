@@ -1,0 +1,39 @@
+:root{
+    --calc-focused-invalid: red;
+    --calc-focused-valid: rgb(98, 3, 252);
+    --calc-unfocused-valid: lightgray;
+    --calc-unfocused-invalid: pink;
+}
+
+.calc-result {
+    background-color: lightgray;
+    min-width: 40px;
+    text-align: center;
+    padding: 0 5px;
+}
+
+.calc>div {
+    display: inline-flex;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.calc-input, .calc-input :focus {
+    border: none;
+}
+
+.calc-invalid:focus-within {
+    border-color: var(--calc-focused-invalid);
+}
+
+.calc-invalid {
+    border-color: var(--calc-unfocused-invalid);
+}
+
+.calc-valid:focus-within {
+    border-color:  var(--calc-focused-valid);
+}
+
+.calc-valid {
+    border-color: var(--calc-unfocused-valid);
+}

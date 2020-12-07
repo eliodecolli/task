@@ -1,6 +1,5 @@
 import { ITextInput, BaseTextInput } from "./base/baseTextInput";
 import { EventManager, EventManagerWrapper } from '../core/eventsManager'
-import { Tokenizer, TokenType } from "../core/tokenizer";
 
 class NumericInput extends BaseTextInput {
 

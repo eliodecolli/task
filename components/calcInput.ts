@@ -13,22 +13,6 @@ import {EventManager, EventManagerWrapper} from '../core/eventsManager'
 
 class CalculatorInput extends BaseTextInput {
 
-    private _textChangedWrapper: EventManagerWrapper;
-    private _valueChangedWrapper: EventManagerWrapper;
-    private _validityChangedWrapper: EventManagerWrapper;
-
-    public get textChanged(): EventManagerWrapper {
-        return this._textChangedWrapper;
-    }
-
-    public get valueChanged(): EventManagerWrapper {
-        return this._valueChangedWrapper;
-    }
-
-    public get validityChanged(): EventManagerWrapper {
-        return this._validityChangedWrapper;
-    }
-
     constructor(hostElement: HTMLElement) {
         super(hostElement);
 

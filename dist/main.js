@@ -32,6 +32,18 @@ class BaseTextInput {
         this._value = null;
         this._text = '';
         this._inputElement = undefined;
+        this._validityChangedWrapper = null;
+        this._textChangedWrapper = null;
+        this._valueChangedWrapper = null;
+    }
+    get textChanged() {
+        return this._textChangedWrapper;
+    }
+    get valueChanged() {
+        return this._valueChangedWrapper;
+    }
+    get validityChanged() {
+        return this._validityChangedWrapper;
     }
     get text() {
         return this._text;
@@ -90,15 +102,6 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         this._valueChangedWrapper = new eventsManager_1.EventManagerWrapper(this.valueChangedEvents);
         this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
     }
-    get textChanged() {
-        return this._textChangedWrapper;
-    }
-    get valueChanged() {
-        return this._valueChangedWrapper;
-    }
-    get validityChanged() {
-        return this._validityChangedWrapper;
-    }
     createInputElement() {
         let retval = document.createElement('div');
         let inputElement = document.createElement('input');
@@ -149,6 +152,59 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
     }
 }
 exports.default = CalculatorInput;
+
+
+/***/ }),
+
+/***/ "./components/numericInput.ts":
+/*!************************************!*
+  !*** ./components/numericInput.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const baseTextInput_1 = __webpack_require__(/*! ./base/baseTextInput */ "./components/base/baseTextInput.ts");
+const eventsManager_1 = __webpack_require__(/*! ../core/eventsManager */ "./core/eventsManager.ts");
+class NumericInput extends baseTextInput_1.BaseTextInput {
+    constructor(hostElement) {
+        super(hostElement);
+        this._inputElement = this.createInputElement();
+        this._hostElement.appendChild(this._inputElement);
+        this.textChangedEvents = new eventsManager_1.EventManager(this);
+        this.valueChangedEvents = new eventsManager_1.EventManager(this);
+        this.validityChangedEvents = new eventsManager_1.EventManager(this);
+        this._textChangedWrapper = new eventsManager_1.EventManagerWrapper(this.textChangedEvents);
+        this._valueChangedWrapper = new eventsManager_1.EventManagerWrapper(this.valueChangedEvents);
+        this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
+    }
+    createInputElement() {
+        let retval = document.createElement('div');
+        let inputElement = document.createElement('input');
+        inputElement.setAttribute('type', 'text');
+        /// maybe this logic can also be added to the base component ?
+        inputElement.addEventListener('change', x => {
+            if (this._inputElement) {
+                let target = x.target;
+                this._text = target.value;
+                this.evaluate();
+            }
+        });
+        retval.appendChild(inputElement);
+        return retval;
+    }
+    evaluate() {
+        var _a, _b, _c;
+        if (this._text) {
+            this._value = parseFloat(this._text);
+            this._isValid = !isNaN(this._value);
+            (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+            (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
+            (_c = this.validityChangedEvents) === null || _c === void 0 ? void 0 : _c.signal();
+        }
+    }
+}
+exports.default = NumericInput;
 
 
 /***/ }),
@@ -634,22 +690,39 @@ exports.Tokenizer = Tokenizer;
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const calcInput_1 = __importDefault(__webpack_require__(/*! ../components/calcInput */ "./components/calcInput.ts"));
-let calc = new calcInput_1.default(document.getElementById('mainDiv'));
-calc.textChanged.subscribe(x => {
+const numericInput_1 = __importDefault(__webpack_require__(/*! ../components/numericInput */ "./components/numericInput.ts"));
+let calc = new calcInput_1.default(document.getElementById('calculator-div'));
+let numeric = new numericInput_1.default(document.getElementById('numeric-div'));
+function textChanged(x) {
+    console.log(`${x.hostElement.id} text has been set to ${x.text}`);
+}
+function validityChanged(x) {
+    console.log(`${x.hostElement.id} validity has been set to ${x.isValid}`);
+}
+function valueChanged(x) {
+    console.log(`${x.hostElement.id} value has been set to ${x.value}`);
+}
+(_a = calc.textChanged) === null || _a === void 0 ? void 0 : _a.subscribe(textChanged);
+(_b = calc.textChanged) === null || _b === void 0 ? void 0 : _b.subscribe(x => {
     let item = document.getElementById('textId');
     if (item) {
         item.innerText = x.text;
     }
 });
-calc.validityChanged.subscribe(x => {
+(_c = calc.validityChanged) === null || _c === void 0 ? void 0 : _c.subscribe(validityChanged);
+(_d = calc.validityChanged) === null || _d === void 0 ? void 0 : _d.subscribe(x => {
     let item = document.getElementById('validId');
     if (item) {
         item.innerText = x.isValid.toString();
     }
 });
-calc.valueChanged.subscribe(_ => console.log('the value has changed'));
+(_e = calc.valueChanged) === null || _e === void 0 ? void 0 : _e.subscribe(valueChanged);
+(_f = numeric.textChanged) === null || _f === void 0 ? void 0 : _f.subscribe(textChanged);
+(_g = numeric.valueChanged) === null || _g === void 0 ? void 0 : _g.subscribe(valueChanged);
+(_h = numeric.validityChanged) === null || _h === void 0 ? void 0 : _h.subscribe(validityChanged);
 
 
 /***/ })

@@ -1,20 +1,41 @@
 
+import { ITextInput } from "../components/base/baseTextInput";
 import CalculatorInput from "../components/calcInput";
-let calc = new CalculatorInput(document.getElementById('mainDiv') as HTMLElement);
+import NumericInput from '../components/numericInput';
 
+let calc = new CalculatorInput(document.getElementById('calculator-div') as HTMLElement);
+let numeric = new NumericInput(document.getElementById('numeric-div') as HTMLElement);
 
-calc.textChanged.subscribe(x => {
+function textChanged(x: ITextInput) {
+    console.log(`${x.hostElement.id} text has been set to ${x.text}`);
+}
+
+function validityChanged(x: ITextInput) {
+    console.log(`${x.hostElement.id} validity has been set to ${x.isValid}`);
+}
+
+function valueChanged(x: ITextInput) {
+    console.log(`${x.hostElement.id} value has been set to ${x.value}`);
+}
+
+calc.textChanged?.subscribe(textChanged);
+calc.textChanged?.subscribe(x => {
     let item = document.getElementById('textId');
     if(item) {
         item.innerText = x.text;
     }
 });
 
-calc.validityChanged.subscribe(x => {
+calc.validityChanged?.subscribe(validityChanged);
+calc.validityChanged?.subscribe(x => {
     let item = document.getElementById('validId');
     if(item) {
         item.innerText = x.isValid.toString();
     }
 });
 
-calc.valueChanged.subscribe(_ => console.log('the value has changed'));
+calc.valueChanged?.subscribe(valueChanged);
+
+numeric.textChanged?.subscribe(textChanged);
+numeric.valueChanged?.subscribe(valueChanged);
+numeric.validityChanged?.subscribe(validityChanged);

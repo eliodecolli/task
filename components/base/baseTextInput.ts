@@ -6,7 +6,7 @@
         Contains the base interface from which numeric controls can be derived.
 */
 
-import {IEventManager} from '../../core/eventsManager'
+import {IEventManager, EventManagerWrapper} from '../../core/eventsManager'
 
 
 interface ITextInput {
@@ -29,6 +29,22 @@ class BaseTextInput implements ITextInput {
     protected textChangedEvents: IEventManager | null = null;
     protected valueChangedEvents: IEventManager | null = null;
     protected validityChangedEvents: IEventManager | null = null;
+
+    protected _textChangedWrapper: EventManagerWrapper | null;
+    protected _valueChangedWrapper: EventManagerWrapper | null;
+    protected _validityChangedWrapper: EventManagerWrapper | null;
+
+    public get textChanged(): EventManagerWrapper | null {
+        return this._textChangedWrapper;
+    }
+
+    public get valueChanged(): EventManagerWrapper | null {
+        return this._valueChangedWrapper;
+    }
+
+    public get validityChanged(): EventManagerWrapper |null {
+        return this._validityChangedWrapper;
+    }
 
     public get text(): string {
         return this._text;
@@ -65,6 +81,10 @@ class BaseTextInput implements ITextInput {
         this._value = null;
         this._text = '';
         this._inputElement = undefined;
+
+        this._validityChangedWrapper = null;
+        this._textChangedWrapper = null;
+        this._valueChangedWrapper = null;
     }
 }
 

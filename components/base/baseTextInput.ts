@@ -64,7 +64,7 @@ class BaseTextInput implements ITextInput {
         };
     }
 
-    registerEventListener(onType: string, func: (x: ITextInput) => void): any {
+    registerEventListener(onType: string, func: (x: ITextInput) => void): void {
         if(this.subscribers[onType]) {
             this.subscribers[onType].push(func);
         }

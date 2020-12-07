@@ -41,7 +41,7 @@ class Tokenizer implements ITokenizer {
     };
 
     private checkType(c: string): TokenType {
-        if(c >= '0' && c < '9' || c == '.') {
+        if(c >= '0' && c <= '9' || c == '.') {
             return TokenType.Variable;
         }
         else if(c == '(') {
@@ -76,6 +76,11 @@ class Tokenizer implements ITokenizer {
             if(cVal === '') {
                 cVal = x;
                 cType = this.checkType(x);
+
+                if(this.formula.length == 1) {
+                    retval.push(new Token(cType, cVal));   // our only token
+                }
+
                 return;
             }
 

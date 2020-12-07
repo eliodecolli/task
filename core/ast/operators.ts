@@ -29,6 +29,10 @@ class Add extends Operator {
 }
 
 class Subtract extends Operator {
+    public get tokenVal(): string {
+        return '-';
+    }
+
     evaluate(): number {
         return this.children[1].evaluate() - this.children[0].evaluate();
     }

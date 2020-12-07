@@ -1,22 +1,22 @@
 import { ITextInput } from "../components/base/baseTextInput";
 
-interface IEventManager {
-    subscribe(func: (x: ITextInput) => void) : void;
+interface IEventManager<T> {
+    subscribe(func: (x: T) => void) : void;
 
     signal(): void;
 }
 
 
-class EventManager implements IEventManager {
+class EventManager<T> implements IEventManager<T> {
     
-    private funcStack: ((x: ITextInput) => void)[] = [];
-    private ownerInstance: ITextInput;
+    private funcStack: ((x: T) => void)[] = [];
+    private ownerInstance: T;
 
-    constructor(owner: ITextInput) {
+    constructor(owner: T) {
         this.ownerInstance = owner;
     }
 
-    subscribe(func: (x: ITextInput) => void): void {
+    subscribe(func: (x: T) => void): void {
         this.funcStack.push(func);
     }
 
@@ -26,15 +26,15 @@ class EventManager implements IEventManager {
 }
 
 // this is to prevent other classes from calling the function signal() other than the ITextInput owner.
-class EventManagerWrapper {
+class EventManagerWrapper<T> {
 
-    private core: IEventManager;
+    private core: IEventManager<T>;
 
-    constructor(core: IEventManager) {
+    constructor(core: IEventManager<T>) {
         this.core = core;
     }
 
-    subscribe(func: (x: ITextInput) => void) {
+    subscribe(func: (x: T) => void) {
         this.core?.subscribe(func);
     }
 

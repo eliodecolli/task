@@ -7,7 +7,7 @@
 */
 
 import ExpressionEvaluator from '../core/expressionEvaluator';
-import {BaseTextInput} from './base/baseTextInput';
+import {ITextInput, BaseTextInput} from './base/baseTextInput';
 import {EventManager, EventManagerWrapper} from '../core/eventsManager'
 
 
@@ -19,13 +19,13 @@ class CalculatorInput extends BaseTextInput {
         this._inputElement = this.createInputElement();
         this._hostElement.appendChild(this._inputElement);
 
-        this.textChangedEvents = new EventManager(this);
-        this.valueChangedEvents = new EventManager(this);
-        this.validityChangedEvents = new EventManager(this);
+        this.textChangedEvents = new EventManager<ITextInput>(this);
+        this.valueChangedEvents = new EventManager<ITextInput>(this);
+        this.validityChangedEvents = new EventManager<ITextInput>(this);
 
-        this._textChangedWrapper = new EventManagerWrapper(this.textChangedEvents);
-        this._valueChangedWrapper = new EventManagerWrapper(this.valueChangedEvents);
-        this._validityChangedWrapper = new EventManagerWrapper(this.validityChangedEvents);
+        this._textChangedWrapper = new EventManagerWrapper<ITextInput>(this.textChangedEvents);
+        this._valueChangedWrapper = new EventManagerWrapper<ITextInput>(this.valueChangedEvents);
+        this._validityChangedWrapper = new EventManagerWrapper<ITextInput>(this.validityChangedEvents);
     }
 
     private createInputElement(): HTMLElement {

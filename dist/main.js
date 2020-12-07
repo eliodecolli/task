@@ -196,7 +196,7 @@ class NumericInput extends baseTextInput_1.BaseTextInput {
     evaluate() {
         var _a, _b, _c;
         if (this._text) {
-            this._value = parseFloat(this._text);
+            this._value = Number(this._text);
             this._isValid = !isNaN(this._value);
             (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
             (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();

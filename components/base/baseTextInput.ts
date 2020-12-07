@@ -26,23 +26,23 @@ class BaseTextInput implements ITextInput {
     protected _hostElement: HTMLElement;
     protected _inputElement: HTMLElement | undefined;
 
-    protected textChangedEvents: IEventManager | null = null;
-    protected valueChangedEvents: IEventManager | null = null;
-    protected validityChangedEvents: IEventManager | null = null;
+    protected textChangedEvents: IEventManager<ITextInput> | null = null;
+    protected valueChangedEvents: IEventManager<ITextInput> | null = null;
+    protected validityChangedEvents: IEventManager<ITextInput> | null = null;
 
-    protected _textChangedWrapper: EventManagerWrapper | null;
-    protected _valueChangedWrapper: EventManagerWrapper | null;
-    protected _validityChangedWrapper: EventManagerWrapper | null;
+    protected _textChangedWrapper: EventManagerWrapper<ITextInput> | null;
+    protected _valueChangedWrapper: EventManagerWrapper<ITextInput> | null;
+    protected _validityChangedWrapper: EventManagerWrapper<ITextInput> | null;
 
-    public get textChanged(): EventManagerWrapper | null {
+    public get textChanged(): EventManagerWrapper<ITextInput> | null {
         return this._textChangedWrapper;
     }
 
-    public get valueChanged(): EventManagerWrapper | null {
+    public get valueChanged(): EventManagerWrapper<ITextInput> | null {
         return this._valueChangedWrapper;
     }
 
-    public get validityChanged(): EventManagerWrapper |null {
+    public get validityChanged(): EventManagerWrapper<ITextInput> |null {
         return this._validityChangedWrapper;
     }
 

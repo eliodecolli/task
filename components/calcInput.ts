@@ -8,14 +8,40 @@
 
 import ExpressionEvaluator from '../core/expressionEvaluator';
 import {BaseTextInput} from './base/baseTextInput';
+import {EventManager, EventManagerWrapper} from '../core/eventsManager'
+
 
 class CalculatorInput extends BaseTextInput {
+
+    private _textChangedWrapper: EventManagerWrapper;
+    private _valueChangedWrapper: EventManagerWrapper;
+    private _validityChangedWrapper: EventManagerWrapper;
+
+    public get textChanged(): EventManagerWrapper {
+        return this._textChangedWrapper;
+    }
+
+    public get valueChanged(): EventManagerWrapper {
+        return this._valueChangedWrapper;
+    }
+
+    public get validityChanged(): EventManagerWrapper {
+        return this._validityChangedWrapper;
+    }
 
     constructor(hostElement: HTMLElement) {
         super(hostElement);
 
         this._inputElement = this.createInputElement();
         this._hostElement.appendChild(this._inputElement);
+
+        this.textChangedEvents = new EventManager(this);
+        this.valueChangedEvents = new EventManager(this);
+        this.validityChangedEvents = new EventManager(this);
+
+        this._textChangedWrapper = new EventManagerWrapper(this.textChangedEvents);
+        this._valueChangedWrapper = new EventManagerWrapper(this.valueChangedEvents);
+        this._validityChangedWrapper = new EventManagerWrapper(this.validityChangedEvents);
     }
 
     private createInputElement(): HTMLElement {
@@ -71,9 +97,9 @@ class CalculatorInput extends BaseTextInput {
                 this._inputElement?.classList.remove('calc-valid');
             }
 
-            this.subscribers['valueChanged'].forEach(x => x(this));
-            this.subscribers['isValidChanged'].forEach(x => x(this));
-            this.subscribers['textChanged'].forEach(x => x(this));
+            this.textChangedEvents?.signal();
+            this.validityChangedEvents?.signal();
+            this.valueChangedEvents?.signal();
         }
     }
 }

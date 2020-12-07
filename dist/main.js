@@ -20,6 +20,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BaseTextInput = void 0;
 class BaseTextInput {
     constructor(hostElement) {
+        this.textChangedEvents = null;
+        this.valueChangedEvents = null;
+        this.validityChangedEvents = null;
         if (hostElement.childNodes.length > 0 ||
             hostElement.tagName !== "DIV") {
             throw new Error("Host element must be an empty DIV.");
@@ -29,31 +32,24 @@ class BaseTextInput {
         this._value = null;
         this._text = '';
         this._inputElement = undefined;
-        this.subscribers = {
-            'textChanged': [],
-            'valueChanged': [],
-            'isValidChanged': []
-        };
     }
     get text() {
         return this._text;
     }
+    set text(_val) {
+        this._text = _val;
+    }
     get value() {
         return this._value;
+    }
+    set value(_val) {
+        this._value = _val;
     }
     get isValid() {
         return this._isValid;
     }
     get hostElement() {
         return this._hostElement;
-    }
-    registerEventListener(onType, func) {
-        if (this.subscribers[onType]) {
-            this.subscribers[onType].push(func);
-        }
-        else {
-            throw new Error(`"${onType}" is not a valid event type.`);
-        }
     }
 }
 exports.BaseTextInput = BaseTextInput;
@@ -81,11 +77,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const expressionEvaluator_1 = __importDefault(__webpack_require__(/*! ../core/expressionEvaluator */ "./core/expressionEvaluator.ts"));
 const baseTextInput_1 = __webpack_require__(/*! ./base/baseTextInput */ "./components/base/baseTextInput.ts");
+const eventsManager_1 = __webpack_require__(/*! ../core/eventsManager */ "./core/eventsManager.ts");
 class CalculatorInput extends baseTextInput_1.BaseTextInput {
     constructor(hostElement) {
         super(hostElement);
         this._inputElement = this.createInputElement();
         this._hostElement.appendChild(this._inputElement);
+        this.textChangedEvents = new eventsManager_1.EventManager(this);
+        this.valueChangedEvents = new eventsManager_1.EventManager(this);
+        this.validityChangedEvents = new eventsManager_1.EventManager(this);
+        this._textChangedWrapper = new eventsManager_1.EventManagerWrapper(this.textChangedEvents);
+        this._valueChangedWrapper = new eventsManager_1.EventManagerWrapper(this.valueChangedEvents);
+        this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
+    }
+    get textChanged() {
+        return this._textChangedWrapper;
+    }
+    get valueChanged() {
+        return this._valueChangedWrapper;
+    }
+    get validityChanged() {
+        return this._validityChangedWrapper;
     }
     createInputElement() {
         let retval = document.createElement('div');
@@ -111,7 +123,7 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         return retval;
     }
     evaluate() {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         if (this._text.length > 0) {
             let expEvaluator = new expressionEvaluator_1.default();
             let computed = expEvaluator.evaluate(this._text);
@@ -130,9 +142,9 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
                 (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.classList.add('calc-invalid');
                 (_e = this._inputElement) === null || _e === void 0 ? void 0 : _e.classList.remove('calc-valid');
             }
-            this.subscribers['valueChanged'].forEach(x => x(this));
-            this.subscribers['isValidChanged'].forEach(x => x(this));
-            this.subscribers['textChanged'].forEach(x => x(this));
+            (_f = this.textChangedEvents) === null || _f === void 0 ? void 0 : _f.signal();
+            (_g = this.validityChangedEvents) === null || _g === void 0 ? void 0 : _g.signal();
+            (_h = this.valueChangedEvents) === null || _h === void 0 ? void 0 : _h.signal();
         }
     }
 }
@@ -266,6 +278,43 @@ const Operators = {
     ')': () => new RParen()
 };
 exports.default = Operators;
+
+
+/***/ }),
+
+/***/ "./core/eventsManager.ts":
+/*!*******************************!*
+  !*** ./core/eventsManager.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EventManagerWrapper = exports.EventManager = void 0;
+class EventManager {
+    constructor(owner) {
+        this.funcStack = [];
+        this.ownerInstance = owner;
+    }
+    subscribe(func) {
+        this.funcStack.push(func);
+    }
+    signal() {
+        this.funcStack.forEach(x => x(this.ownerInstance));
+    }
+}
+exports.EventManager = EventManager;
+// this is to prevent other classes from calling the function signal() other than the ITextInput owner.
+class EventManagerWrapper {
+    constructor(core) {
+        this.core = core;
+    }
+    subscribe(func) {
+        var _a;
+        (_a = this.core) === null || _a === void 0 ? void 0 : _a.subscribe(func);
+    }
+}
+exports.EventManagerWrapper = EventManagerWrapper;
 
 
 /***/ }),
@@ -588,19 +637,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const calcInput_1 = __importDefault(__webpack_require__(/*! ../components/calcInput */ "./components/calcInput.ts"));
 let calc = new calcInput_1.default(document.getElementById('mainDiv'));
-calc.registerEventListener('textChanged', x => {
+calc.textChanged.subscribe(x => {
     let item = document.getElementById('textId');
     if (item) {
         item.innerText = x.text;
     }
 });
-calc.registerEventListener('isValidChanged', x => {
+calc.validityChanged.subscribe(x => {
     let item = document.getElementById('validId');
     if (item) {
         item.innerText = x.isValid.toString();
     }
 });
-calc.registerEventListener('valueChanged', _ => console.log('the value has changed'));
+calc.valueChanged.subscribe(_ => console.log('the value has changed'));
 
 
 /***/ })

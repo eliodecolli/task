@@ -1,17 +1,20 @@
+
 import CalculatorInput from "../components/calcInput";
 let calc = new CalculatorInput(document.getElementById('mainDiv') as HTMLElement);
 
 
-calc.registerEventListener('textChanged', x => {
+calc.textChanged.subscribe(x => {
     let item = document.getElementById('textId');
     if(item) {
         item.innerText = x.text;
     }
 });
-calc.registerEventListener('isValidChanged', x => {
+
+calc.validityChanged.subscribe(x => {
     let item = document.getElementById('validId');
     if(item) {
         item.innerText = x.isValid.toString();
     }
 });
-calc.registerEventListener('valueChanged', _ => console.log('the value has changed'));
+
+calc.valueChanged.subscribe(_ => console.log('the value has changed'));

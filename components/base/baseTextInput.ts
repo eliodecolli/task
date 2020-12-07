@@ -6,14 +6,14 @@
         Contains the base interface from which numeric controls can be derived.
 */
 
+import {IEventManager} from '../../core/eventsManager'
+
 
 interface ITextInput {
     value: number | null | undefined;
     text: string;
     isValid: boolean;
     hostElement: HTMLElement;
-
-    registerEventListener(onType: string, func: (x: ITextInput) => void) : void;
 }
 
 
@@ -26,15 +26,24 @@ class BaseTextInput implements ITextInput {
     protected _hostElement: HTMLElement;
     protected _inputElement: HTMLElement | undefined;
 
-
-    protected subscribers: {[id: string]: ((x: ITextInput) => void)[]};
+    protected textChangedEvents: IEventManager | null = null;
+    protected valueChangedEvents: IEventManager | null = null;
+    protected validityChangedEvents: IEventManager | null = null;
 
     public get text(): string {
         return this._text;
     }
 
+    public set text(_val: string) {
+        this._text = _val;
+    }
+
     public get value(): number | null | undefined {
         return this._value;
+    }
+
+    public set value(_val: number | undefined | null) {
+        this._value = _val;
     }
 
     public get isValid(): boolean {
@@ -56,21 +65,6 @@ class BaseTextInput implements ITextInput {
         this._value = null;
         this._text = '';
         this._inputElement = undefined;
-
-        this.subscribers = {
-            'textChanged': [],
-            'valueChanged': [],
-            'isValidChanged': []
-        };
-    }
-
-    registerEventListener(onType: string, func: (x: ITextInput) => void): void {
-        if(this.subscribers[onType]) {
-            this.subscribers[onType].push(func);
-        }
-        else {
-            throw new Error(`"${onType}" is not a valid event type.`);
-        }
     }
 }
 

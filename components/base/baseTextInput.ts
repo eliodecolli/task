@@ -62,6 +62,16 @@ class BaseTextInput implements ITextInput {
         return this._value;
     }
 
+    public set text(_val: string) {
+        this._text = _val;
+        this.textChangedEvents?.signal();
+    }
+
+    public set value(_val: number | null | undefined) {
+        this._value = _val;
+        this.valueChangedEvents?.signal();
+    }
+
     constructor(hostElement: HTMLElement) {
         if(hostElement.childNodes.length > 0 ||
             hostElement.tagName !== "DIV") {

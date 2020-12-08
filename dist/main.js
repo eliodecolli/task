@@ -57,6 +57,16 @@ class BaseTextInput {
     get value() {
         return this._value;
     }
+    set text(_val) {
+        var _a;
+        this._text = _val;
+        (_a = this.textChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+    }
+    set value(_val) {
+        var _a;
+        this._value = _val;
+        (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+    }
 }
 exports.BaseTextInput = BaseTextInput;
 

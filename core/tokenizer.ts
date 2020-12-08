@@ -72,7 +72,10 @@ class Tokenizer implements ITokenizer {
 
         let cType = TokenType.Default;
         let cVal = '';
-        this.formula.split('').forEach((x, i) => {
+
+        let divided = this.formula.split('');
+
+        divided.forEach((x, i) => {
             if(cVal === '') {
                 cVal = x;
                 cType = this.checkType(x);
@@ -87,6 +90,10 @@ class Tokenizer implements ITokenizer {
             if(x === ' ')
                 return;
 
+            if(cVal == '-' && this.checkType(x) == TokenType.Variable && (!divided[i-2] || (divided[i-2] && this.checkType(divided[i - 2]) != TokenType.Variable))) {
+                cType = TokenType.Variable;    // this is now a number :)
+            }
+
             if(cType == this.checkType(x)) { // we're still not past the current token
 
                 if(cType == TokenType.Variable && (x == '.' && cVal.endsWith('.'))) {  // floating point numbers must be of the format NUMBER.NUMBER
@@ -97,6 +104,14 @@ class Tokenizer implements ITokenizer {
                     retval.push(new Token(cType, cVal));
                     cVal = '';
                 }
+                else if(cType == TokenType.Operator && x == '-') {
+                    let token = new Token(cType, cVal);
+                    retval.push(token);
+
+                    cType = TokenType.Variable;
+                    cVal = '';
+                }
+
                 cVal += x;  // keep on building the current token
             }
             else { // the current token is done start creating the new one

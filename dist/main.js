@@ -634,7 +634,8 @@ class Tokenizer {
         let retval = [];
         let cType = TokenType.Default;
         let cVal = '';
-        this.formula.split('').forEach((x, i) => {
+        let divided = this.formula.split('');
+        divided.forEach((x, i) => {
             if (cVal === '') {
                 cVal = x;
                 cType = this.checkType(x);
@@ -645,6 +646,9 @@ class Tokenizer {
             }
             if (x === ' ')
                 return;
+            if (cVal == '-' && this.checkType(x) == TokenType.Variable && (!divided[i - 2] || (divided[i - 2] && this.checkType(divided[i - 2]) != TokenType.Variable))) {
+                cType = TokenType.Variable; // this is now a number :)
+            }
             if (cType == this.checkType(x)) { // we're still not past the current token
                 if (cType == TokenType.Variable && (x == '.' && cVal.endsWith('.'))) { // floating point numbers must be of the format NUMBER.NUMBER
                     throw new Error(`Invalid '.' after token "${cVal}"`);
@@ -652,6 +656,12 @@ class Tokenizer {
                 else if (cType == TokenType.LParen || cType == TokenType.RParen) {
                     // add the previous token and clear it up then
                     retval.push(new Token(cType, cVal));
+                    cVal = '';
+                }
+                else if (cType == TokenType.Operator && x == '-') {
+                    let token = new Token(cType, cVal);
+                    retval.push(token);
+                    cType = TokenType.Variable;
                     cVal = '';
                 }
                 cVal += x; // keep on building the current token
@@ -690,7 +700,7 @@ exports.Tokenizer = Tokenizer;
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d, _e, _f, _g, _h;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const calcInput_1 = __importDefault(__webpack_require__(/*! ../components/calcInput */ "./components/calcInput.ts"));
 const numericInput_1 = __importDefault(__webpack_require__(/*! ../components/numericInput */ "./components/numericInput.ts"));
@@ -720,9 +730,19 @@ function valueChanged(x) {
     }
 });
 (_e = calc.valueChanged) === null || _e === void 0 ? void 0 : _e.subscribe(valueChanged);
-(_f = numeric.textChanged) === null || _f === void 0 ? void 0 : _f.subscribe(textChanged);
-(_g = numeric.valueChanged) === null || _g === void 0 ? void 0 : _g.subscribe(valueChanged);
-(_h = numeric.validityChanged) === null || _h === void 0 ? void 0 : _h.subscribe(validityChanged);
+(_f = calc.valueChanged) === null || _f === void 0 ? void 0 : _f.subscribe(x => {
+    let span = document.getElementById('valueId');
+    if (span) {
+        let val = NaN;
+        if (x.value) {
+            val = x.value;
+        }
+        span.innerText = val.toFixed(4);
+    }
+});
+(_g = numeric.textChanged) === null || _g === void 0 ? void 0 : _g.subscribe(textChanged);
+(_h = numeric.valueChanged) === null || _h === void 0 ? void 0 : _h.subscribe(valueChanged);
+(_j = numeric.validityChanged) === null || _j === void 0 ? void 0 : _j.subscribe(validityChanged);
 
 
 /***/ })

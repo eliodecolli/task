@@ -35,6 +35,16 @@ calc.validityChanged?.subscribe(x => {
 });
 
 calc.valueChanged?.subscribe(valueChanged);
+calc.valueChanged?.subscribe(x => {
+    let span = document.getElementById('valueId');
+    if(span) {
+        let val = NaN;
+        if(x.value) {
+            val = x.value;
+        }
+        span.innerText = val.toFixed(4);
+    }
+});
 
 numeric.textChanged?.subscribe(textChanged);
 numeric.valueChanged?.subscribe(valueChanged);

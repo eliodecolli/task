@@ -9,21 +9,36 @@
 
     <title>Document</title>
 </head>
-<body>
-<div id="c-div-main">
-    <div id="calculator-div" class="calc"></div>
-<div>
-    <p>
-        <label>text: <span id="textId"></span></label>
-    </p>
-    <p>
-        <label>valid: <span id="validId"></span></label>
-    </p>
-</div>
-</div>
+<style>
 
-<div id="n-div-main">
-    <div id="numeric-div"></div>
+    .square {
+        border: 1px solid grey;
+        border-radius: 5px;
+        padding: 10px;
+        width: 20%;
+    }
+
+</style>
+<body>
+<div class="square" >
+    <div id="c-div-main">
+        <div id="calculator-div" class="calc"></div>
+    <div>
+        <p>
+            <label>Value: <span id="valueId"></span></label>
+        </p>
+        <p>
+            <label>Text: <span id="textId"></span></label>
+        </p>
+        <p>
+            <label>Valid: <span id="validId"></span></label>
+        </p>
+    </div>
+    </div>
+    
+    <div id="n-div-main">
+        <div id="numeric-div"></div>
+    </div>
 </div>
 <script src="dist/main.js"></script>
 </body>

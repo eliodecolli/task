@@ -49,3 +49,25 @@ calc.valueChanged?.subscribe(x => {
 numeric.textChanged?.subscribe(textChanged);
 numeric.valueChanged?.subscribe(valueChanged);
 numeric.validityChanged?.subscribe(validityChanged);
+
+
+let valBtn = document.getElementById('setValBtn');
+let txtBtn = document.getElementById('setTextBtn');
+
+if(valBtn) {
+    valBtn.onclick = _ => {
+        let val = document.getElementById('inputValue') as HTMLInputElement;
+        if(val) {
+            calc.value = Number(val.value);
+        }
+    };
+}
+
+if(txtBtn) {
+    txtBtn.onclick = _ => {
+        let txt = document.getElementById('inputText') as HTMLInputElement;
+        if(txt) {
+            calc.text = txt.value;
+        }
+    };
+}

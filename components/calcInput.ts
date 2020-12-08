@@ -13,6 +13,29 @@ import {EventManager, EventManagerWrapper} from '../core/eventsManager'
 
 class CalculatorInput extends BaseTextInput {
 
+    public set text(_val: string) {
+        this._text = _val;
+
+        let c = this._inputElement?.querySelector("input[data-order='primary']") as HTMLInputElement;
+        if(c) {
+            c.value = _val;
+        }
+        this.textChangedEvents?.signal();
+    }
+
+    public set value(_val: number | null | undefined) {
+        this._value = _val;
+        this.valueChangedEvents?.signal();
+    }
+    
+    public get text(): string {
+        return this._text;
+    }
+
+    public get value(): number | null | undefined {
+        return this._value;
+    }
+
     constructor(hostElement: HTMLElement) {
         super(hostElement);
 

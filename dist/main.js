@@ -45,23 +45,17 @@ class BaseTextInput {
     get validityChanged() {
         return this._validityChangedWrapper;
     }
-    get text() {
-        return this._text;
-    }
-    set text(_val) {
-        this._text = _val;
-    }
-    get value() {
-        return this._value;
-    }
-    set value(_val) {
-        this._value = _val;
-    }
     get isValid() {
         return this._isValid;
     }
     get hostElement() {
         return this._hostElement;
+    }
+    get text() {
+        return this._text;
+    }
+    get value() {
+        return this._value;
     }
 }
 exports.BaseTextInput = BaseTextInput;
@@ -91,6 +85,26 @@ const expressionEvaluator_1 = __importDefault(__webpack_require__(/*! ../core/ex
 const baseTextInput_1 = __webpack_require__(/*! ./base/baseTextInput */ "./components/base/baseTextInput.ts");
 const eventsManager_1 = __webpack_require__(/*! ../core/eventsManager */ "./core/eventsManager.ts");
 class CalculatorInput extends baseTextInput_1.BaseTextInput {
+    set text(_val) {
+        var _a, _b;
+        this._text = _val;
+        let c = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("input[data-order='primary']");
+        if (c) {
+            c.value = _val;
+        }
+        (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
+    }
+    set value(_val) {
+        var _a;
+        this._value = _val;
+        (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+    }
+    get text() {
+        return this._text;
+    }
+    get value() {
+        return this._value;
+    }
     constructor(hostElement) {
         super(hostElement);
         this._inputElement = this.createInputElement();
@@ -743,6 +757,24 @@ function valueChanged(x) {
 (_g = numeric.textChanged) === null || _g === void 0 ? void 0 : _g.subscribe(textChanged);
 (_h = numeric.valueChanged) === null || _h === void 0 ? void 0 : _h.subscribe(valueChanged);
 (_j = numeric.validityChanged) === null || _j === void 0 ? void 0 : _j.subscribe(validityChanged);
+let valBtn = document.getElementById('setValBtn');
+let txtBtn = document.getElementById('setTextBtn');
+if (valBtn) {
+    valBtn.onclick = _ => {
+        let val = document.getElementById('inputValue');
+        if (val) {
+            calc.value = Number(val.value);
+        }
+    };
+}
+if (txtBtn) {
+    txtBtn.onclick = _ => {
+        let txt = document.getElementById('inputText');
+        if (txt) {
+            calc.text = txt.value;
+        }
+    };
+}
 
 
 /***/ })

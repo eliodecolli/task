@@ -46,28 +46,20 @@ class BaseTextInput implements ITextInput {
         return this._validityChangedWrapper;
     }
 
-    public get text(): string {
-        return this._text;
-    }
-
-    public set text(_val: string) {
-        this._text = _val;
-    }
-
-    public get value(): number | null | undefined {
-        return this._value;
-    }
-
-    public set value(_val: number | undefined | null) {
-        this._value = _val;
-    }
-
     public get isValid(): boolean {
         return this._isValid;
     }
 
     public get hostElement(): HTMLElement {
         return this._hostElement;
+    }
+
+    public get text(): string {
+        return this._text;
+    }
+
+    public get value(): number | null | undefined {
+        return this._value;
     }
 
     constructor(hostElement: HTMLElement) {

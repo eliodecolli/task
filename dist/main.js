@@ -711,7 +711,7 @@ exports.Tokenizer = Tokenizer;
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const calcInput_1 = __importDefault(__webpack_require__(/*! ../components/calcInput */ "./components/calcInput.ts"));
 const numericInput_1 = __importDefault(__webpack_require__(/*! ../components/numericInput */ "./components/numericInput.ts"));
@@ -752,8 +752,27 @@ function valueChanged(x) {
     }
 });
 (_g = numeric.textChanged) === null || _g === void 0 ? void 0 : _g.subscribe(textChanged);
-(_h = numeric.valueChanged) === null || _h === void 0 ? void 0 : _h.subscribe(valueChanged);
-(_j = numeric.validityChanged) === null || _j === void 0 ? void 0 : _j.subscribe(validityChanged);
+(_h = numeric.textChanged) === null || _h === void 0 ? void 0 : _h.subscribe(x => {
+    let span = document.getElementById('textIdNumeric');
+    if (span) {
+        span.innerText = x.text;
+    }
+});
+(_j = numeric.valueChanged) === null || _j === void 0 ? void 0 : _j.subscribe(valueChanged);
+(_k = numeric.valueChanged) === null || _k === void 0 ? void 0 : _k.subscribe(x => {
+    var _a;
+    let span = document.getElementById('valueIdNumeric');
+    if (span) {
+        span.innerText = (_a = x.value) === null || _a === void 0 ? void 0 : _a.toString(); // this is supposed to be NaN if something's wrong
+    }
+});
+(_l = numeric.validityChanged) === null || _l === void 0 ? void 0 : _l.subscribe(validityChanged);
+(_m = numeric.validityChanged) === null || _m === void 0 ? void 0 : _m.subscribe(x => {
+    let span = document.getElementById('validIdNumeric');
+    if (span) {
+        span.innerText = x.isValid.toString();
+    }
+});
 let valBtn = document.getElementById('setValBtn');
 let txtBtn = document.getElementById('setTextBtn');
 if (valBtn) {
@@ -769,6 +788,24 @@ if (txtBtn) {
         let txt = document.getElementById('inputText');
         if (txt) {
             calc.text = txt.value;
+        }
+    };
+}
+let nValBtn = document.getElementById('setValBtnNumeric');
+let nTxtBtn = document.getElementById('setTextBtnNumeric');
+if (nValBtn) {
+    nValBtn.onclick = _ => {
+        let val = document.getElementById('inputValueNumeric');
+        if (val) {
+            numeric.value = Number(val.value);
+        }
+    };
+}
+if (nTxtBtn) {
+    nTxtBtn.onclick = _ => {
+        let txt = document.getElementById('inputTextNumeric');
+        if (txt) {
+            numeric.text = txt.value;
         }
     };
 }

@@ -47,9 +47,28 @@ calc.valueChanged?.subscribe(x => {
 });
 
 numeric.textChanged?.subscribe(textChanged);
-numeric.valueChanged?.subscribe(valueChanged);
-numeric.validityChanged?.subscribe(validityChanged);
+numeric.textChanged?.subscribe(x => {
+    let span = document.getElementById('textIdNumeric');
+    if(span) {
+        span.innerText = x.text;
+    }
+});
 
+numeric.valueChanged?.subscribe(valueChanged);
+numeric.valueChanged?.subscribe(x => {
+    let span = document.getElementById('valueIdNumeric');
+    if(span) {
+        span.innerText = <string>x.value?.toString();   // this is supposed to be NaN if something's wrong
+    }
+});
+
+numeric.validityChanged?.subscribe(validityChanged);
+numeric.validityChanged?.subscribe(x => {
+    let span = document.getElementById('validIdNumeric');
+    if(span) {
+        span.innerText = x.isValid.toString();
+    }
+});
 
 let valBtn = document.getElementById('setValBtn');
 let txtBtn = document.getElementById('setTextBtn');
@@ -68,6 +87,27 @@ if(txtBtn) {
         let txt = document.getElementById('inputText') as HTMLInputElement;
         if(txt) {
             calc.text = txt.value;
+        }
+    };
+}
+
+let nValBtn = document.getElementById('setValBtnNumeric');
+let nTxtBtn = document.getElementById('setTextBtnNumeric');
+
+if(nValBtn) {
+    nValBtn.onclick = _ => {
+        let val = document.getElementById('inputValueNumeric') as HTMLInputElement;
+        if(val) {
+            numeric.value = Number(val.value);
+        }
+    };
+}
+
+if(nTxtBtn) {
+    nTxtBtn.onclick = _ => {
+        let txt = document.getElementById('inputTextNumeric') as HTMLInputElement;
+        if(txt) {
+            numeric.text = txt.value;
         }
     };
 }

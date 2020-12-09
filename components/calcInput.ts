@@ -47,10 +47,7 @@ class CalculatorInput extends BaseTextInput {
             let computed = expEvaluator.evaluate(this._text);
 
             let resultSpan = this._inputElement?.querySelector("span") as HTMLSpanElement;
-
-            let tempVal = this._value;
-            let tempValidity = this._isValid;
-
+            
             if(computed != undefined) {
                 this._value = computed;
                 this._isValid = true;
@@ -67,16 +64,6 @@ class CalculatorInput extends BaseTextInput {
                 this._inputElement?.classList.add('calc-invalid');
                 this._inputElement?.classList.remove('calc-valid');
             }
-            
-            if(tempValidity !== this._isValid) {
-                this.validityChangedEvents?.signal();
-            }
-
-            if(tempVal !== this._value) {
-                this.valueChangedEvents?.signal();
-            }
-
-            this.textChangedEvents?.signal();
         }
     }
 }

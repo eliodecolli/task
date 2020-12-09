@@ -87,11 +87,20 @@ class BaseTextInput {
         let input = document.createElement('input');
         input.setAttribute('type', 'text');
         input.addEventListener('input', x => {
+            var _a, _b, _c;
             let target = x.target;
             if (target.value !== this._text) {
+                let tempVal = this._value;
+                let tempValidity = this._isValid;
                 this._text = target.value;
                 this.evaluate();
-                // this.textChangedEvents?.signal();
+                if (tempValidity !== this._isValid) {
+                    (_a = this.validityChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+                }
+                if (tempVal !== this._value) {
+                    (_b = this.valueChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
+                }
+                (_c = this.textChangedEvents) === null || _c === void 0 ? void 0 : _c.signal(); // we already determined that the text has changed
             }
         });
         // input.addEventListener('change', x => { 
@@ -149,13 +158,11 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         return retval;
     }
     evaluate() {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e;
         if (this._text.length > 0) {
             let expEvaluator = new expressionEvaluator_1.default();
             let computed = expEvaluator.evaluate(this._text);
             let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span");
-            let tempVal = this._value;
-            let tempValidity = this._isValid;
             if (computed != undefined) {
                 this._value = computed;
                 this._isValid = true;
@@ -170,13 +177,6 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
                 (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.classList.add('calc-invalid');
                 (_e = this._inputElement) === null || _e === void 0 ? void 0 : _e.classList.remove('calc-valid');
             }
-            if (tempValidity !== this._isValid) {
-                (_f = this.validityChangedEvents) === null || _f === void 0 ? void 0 : _f.signal();
-            }
-            if (tempVal !== this._value) {
-                (_g = this.valueChangedEvents) === null || _g === void 0 ? void 0 : _g.signal();
-            }
-            (_h = this.textChangedEvents) === null || _h === void 0 ? void 0 : _h.signal();
         }
     }
 }
@@ -206,19 +206,9 @@ class NumericInput extends baseTextInput_1.BaseTextInput {
         this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
     }
     evaluate() {
-        var _a, _b, _c;
         if (this._text) {
-            let temp = Number(this._text);
-            if (this._value !== temp) {
-                this._value = temp;
-                (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
-            }
-            let tempValididty = !isNaN(this._value);
-            if (tempValididty !== this._isValid) {
-                this._isValid = tempValididty;
-                (_b = this.validityChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
-            }
-            (_c = this.textChangedEvents) === null || _c === void 0 ? void 0 : _c.signal();
+            this._value = Number(this._text);
+            this._isValid = !isNaN(this._value);
         }
     }
 }

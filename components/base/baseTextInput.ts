@@ -117,9 +117,19 @@ abstract class BaseTextInput implements ITextInput {
         input.addEventListener('input', x => {
             let target = x.target as HTMLInputElement;
             if(target.value !== this._text) {
+                let tempVal = this._value;
+                let tempValidity = this._isValid;
+
                 this._text = target.value;
                 this.evaluate();
-                // this.textChangedEvents?.signal();
+                
+                if(tempValidity !== this._isValid) {
+                    this.validityChangedEvents?.signal();
+                }
+                if(tempVal !== this._value) {
+                    this.valueChangedEvents?.signal();
+                }
+                this.textChangedEvents?.signal();   // we already determined that the text has changed
             }
         });
 

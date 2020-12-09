@@ -17,14 +17,14 @@ class NumericInput extends BaseTextInput {
 
     protected evaluate(): void {
         if(this._text) {
+
             let temp = Number(this._text);
             if(this._value !== temp) {
+                this._value = temp;
                 this.valueChangedEvents?.signal();
             }
-
-            this._value = temp;
+            
             let tempValididty = !isNaN(this._value);
-
             if(tempValididty !== this._isValid) {
                 this._isValid = tempValididty;
                 this.validityChangedEvents?.signal();

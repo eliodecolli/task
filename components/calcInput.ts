@@ -75,6 +75,8 @@ class CalculatorInput extends BaseTextInput {
             if(tempVal !== this._value) {
                 this.valueChangedEvents?.signal();
             }
+
+            this.textChangedEvents?.signal();
         }
     }
 }

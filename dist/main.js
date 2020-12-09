@@ -87,12 +87,11 @@ class BaseTextInput {
         let input = document.createElement('input');
         input.setAttribute('type', 'text');
         input.addEventListener('input', x => {
-            var _a;
             let target = x.target;
             if (target.value !== this._text) {
                 this._text = target.value;
                 this.evaluate();
-                (_a = this.textChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+                // this.textChangedEvents?.signal();
             }
         });
         // input.addEventListener('change', x => { 
@@ -150,7 +149,7 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         return retval;
     }
     evaluate() {
-        var _a, _b, _c, _d, _e, _f, _g;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         if (this._text.length > 0) {
             let expEvaluator = new expressionEvaluator_1.default();
             let computed = expEvaluator.evaluate(this._text);
@@ -177,6 +176,7 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
             if (tempVal !== this._value) {
                 (_g = this.valueChangedEvents) === null || _g === void 0 ? void 0 : _g.signal();
             }
+            (_h = this.textChangedEvents) === null || _h === void 0 ? void 0 : _h.signal();
         }
     }
 }
@@ -210,9 +210,9 @@ class NumericInput extends baseTextInput_1.BaseTextInput {
         if (this._text) {
             let temp = Number(this._text);
             if (this._value !== temp) {
+                this._value = temp;
                 (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
             }
-            this._value = temp;
             let tempValididty = !isNaN(this._value);
             if (tempValididty !== this._isValid) {
                 this._isValid = tempValididty;

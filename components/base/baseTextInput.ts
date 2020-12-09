@@ -102,7 +102,7 @@ abstract class BaseTextInput implements ITextInput {
         this.textChangedEvents?.clear();
         this.valueChangedEvents?.clear();
         this.validityChangedEvents?.clear();
-        
+
         this._inputElement?.remove();
     }
 
@@ -119,7 +119,7 @@ abstract class BaseTextInput implements ITextInput {
             if(target.value !== this._text) {
                 this._text = target.value;
                 this.evaluate();
-                this.textChangedEvents?.signal();
+                // this.textChangedEvents?.signal();
             }
         });
 

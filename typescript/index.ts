@@ -111,3 +111,11 @@ if(nTxtBtn) {
         }
     };
 }
+
+let destroyBtn = document.getElementById('destroyBtn') as HTMLButtonElement;
+if(destroyBtn) {
+    destroyBtn.onclick = _ => {
+        numeric.destroy();
+        calc.destroy();
+    };
+}

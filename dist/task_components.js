@@ -809,6 +809,13 @@ if (nTxtBtn) {
         }
     };
 }
+let destroyBtn = document.getElementById('destroyBtn');
+if (destroyBtn) {
+    destroyBtn.onclick = _ => {
+        numeric.destroy();
+        calc.destroy();
+    };
+}
 
 
 /***/ })
@@ -845,4 +852,4 @@ if (nTxtBtn) {
 /******/ 	__webpack_require__("./typescript/index.ts");
 /******/ })()
 ;
-//# sourceMappingURL=main.js.map
+//# sourceMappingURL=task_components.js.map

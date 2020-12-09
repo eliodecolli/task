@@ -6,7 +6,7 @@ module.exports = {
       './typescript/index.ts'
     ],
   output: {
-    filename: 'main.js',
+    filename: 'task_components.js',
     path: path.resolve(__dirname, 'dist'),
   },
   resolve: {

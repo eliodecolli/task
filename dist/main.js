@@ -77,10 +77,10 @@ class BaseTextInput {
     }
     destroy() {
         var _a, _b, _c, _d;
-        (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.remove();
-        (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.clear();
-        (_c = this.valueChangedEvents) === null || _c === void 0 ? void 0 : _c.clear();
-        (_d = this.validityChangedEvents) === null || _d === void 0 ? void 0 : _d.clear();
+        (_a = this.textChangedEvents) === null || _a === void 0 ? void 0 : _a.clear();
+        (_b = this.valueChangedEvents) === null || _b === void 0 ? void 0 : _b.clear();
+        (_c = this.validityChangedEvents) === null || _c === void 0 ? void 0 : _c.clear();
+        (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.remove();
     }
     createInputElement() {
         let retval = document.createElement('div');
@@ -213,9 +213,12 @@ class NumericInput extends baseTextInput_1.BaseTextInput {
                 (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
             }
             this._value = temp;
-            this._isValid = !isNaN(this._value);
-            (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
-            (_c = this.validityChangedEvents) === null || _c === void 0 ? void 0 : _c.signal();
+            let tempValididty = !isNaN(this._value);
+            if (tempValididty !== this._isValid) {
+                this._isValid = tempValididty;
+                (_b = this.validityChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
+            }
+            (_c = this.textChangedEvents) === null || _c === void 0 ? void 0 : _c.signal();
         }
     }
 }

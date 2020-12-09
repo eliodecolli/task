@@ -23,10 +23,14 @@ class NumericInput extends BaseTextInput {
             }
 
             this._value = temp;
-            this._isValid = !isNaN(this._value);
+            let tempValididty = !isNaN(this._value);
+
+            if(tempValididty !== this._isValid) {
+                this._isValid = tempValididty;
+                this.validityChangedEvents?.signal();
+            }
 
             this.textChangedEvents?.signal();
-            this.validityChangedEvents?.signal();
         }
     }
 

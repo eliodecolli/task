@@ -99,11 +99,11 @@ abstract class BaseTextInput implements ITextInput {
     }
 
     public destroy(): void {
-        this._inputElement?.remove();
-
         this.textChangedEvents?.clear();
         this.valueChangedEvents?.clear();
         this.validityChangedEvents?.clear();
+        
+        this._inputElement?.remove();
     }
 
     protected abstract evaluate(): void;

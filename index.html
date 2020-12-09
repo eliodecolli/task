@@ -18,39 +18,73 @@
         width: 20%;
     }
 
+    .app-container {
+        display: inline;
+    }
+
 </style>
 <body>
-<div class="square" >
-    <div id="c-div-main">
-    <div id="calculator-div" class="calc"></div>
-    <div>
-        <p>
-            <label>Value: <span id="valueId"> </span></label>
-        </p>
-        <p>
-            <label>Text: <span id="textId"></span></label>
-        </p>
-        <p>
-            <label>Valid: <span id="validId"></span></label>
-        </p>
+
+    <div id="numericInputDiv" class="app-container">
+        <div class="square">
+            <p><h3>Numeric Input</h3></p>
+            <div id="n-div-main">
+                <div id="numeric-div"></div>
+                <div>
+                    <p>
+                        <label>Value: <span id="valueIdNumeric"> </span></label>
+                    </p>
+                    <p>
+                        <label>Text: <span id="textIdNumeric"></span></label>
+                    </p>
+                    <p>
+                        <label>Valid: <span id="validIdNumeric"></span></label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <button id="setValBtnNumeric">Set Value</button>
+                        <input type="number" id="inputValueNumeric" />
+                    </p>
+                    <p>
+                        <button id="setTextBtnNumeric">Set Text</button>
+                        <input type="text" id="inputTextNumeric" />
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div>
-        <p>
-            <button id="setValBtn">Set Value</button>
-            <input type="number" id="inputValue" />
-        </p>
-        <p>
-            <button id="setTextBtn">Set Text</button>
-            <input type="text" id="inputText" />
-        </p>
+    <div id="calcInputDiv" class="app-container">
+        <div class="square" >
+            <p><h3>Calculator Input</h3></p>
+            <div id="c-div-main">
+                <div id="calculator-div" class="calc"></div>
+                <div>
+                    <p>
+                        <label>Value: <span id="valueId"> </span></label>
+                    </p>
+                    <p>
+                        <label>Text: <span id="textId"></span></label>
+                    </p>
+                    <p>
+                        <label>Valid: <span id="validId"></span></label>
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <button id="setValBtn">Set Value</button>
+                        <input type="number" id="inputValue" />
+                    </p>
+                    <p>
+                        <button id="setTextBtn">Set Text</button>
+                        <input type="text" id="inputText" />
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-    </div>
-    
-    <div id="n-div-main">
-        <div id="numeric-div"></div>
-    </div>
-</div>
+
 <script src="dist/main.js"></script>
 </body>
 </html>

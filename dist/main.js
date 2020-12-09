@@ -31,7 +31,8 @@ class BaseTextInput {
         this._isValid = true;
         this._value = null;
         this._text = '';
-        this._inputElement = undefined;
+        this._inputElement = this.createInputElement();
+        this._hostElement.appendChild(this._inputElement);
         this._validityChangedWrapper = null;
         this._textChangedWrapper = null;
         this._valueChangedWrapper = null;
@@ -58,14 +59,47 @@ class BaseTextInput {
         return this._value;
     }
     set text(_val) {
-        var _a;
-        this._text = _val;
-        (_a = this.textChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+        var _a, _b, _c;
+        if (this._text !== _val) {
+            let c = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("input");
+            if (c) {
+                c.value = _val;
+            }
+            (_c = (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.querySelector('input')) === null || _c === void 0 ? void 0 : _c.dispatchEvent(new Event('input')); // this will trigger, evaluate(), however there's perhaps a better way to do this?
+        }
     }
     set value(_val) {
         var _a;
-        this._value = _val;
-        (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+        if (this._value !== _val) {
+            this._value = _val;
+            (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+        }
+    }
+    destroy() {
+        var _a, _b, _c, _d;
+        (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.remove();
+        (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.clear();
+        (_c = this.valueChangedEvents) === null || _c === void 0 ? void 0 : _c.clear();
+        (_d = this.validityChangedEvents) === null || _d === void 0 ? void 0 : _d.clear();
+    }
+    createInputElement() {
+        let retval = document.createElement('div');
+        let input = document.createElement('input');
+        input.setAttribute('type', 'text');
+        input.addEventListener('input', x => {
+            var _a;
+            let target = x.target;
+            if (target.value !== this._text) {
+                this._text = target.value;
+                this.evaluate();
+                (_a = this.textChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+            }
+        });
+        // input.addEventListener('change', x => { 
+        //     this.textChangedEvents?.signal();
+        // });
+        retval.appendChild(input);
+        return retval;
     }
 }
 exports.BaseTextInput = BaseTextInput;
@@ -95,30 +129,8 @@ const expressionEvaluator_1 = __importDefault(__webpack_require__(/*! ../core/ex
 const baseTextInput_1 = __webpack_require__(/*! ./base/baseTextInput */ "./components/base/baseTextInput.ts");
 const eventsManager_1 = __webpack_require__(/*! ../core/eventsManager */ "./core/eventsManager.ts");
 class CalculatorInput extends baseTextInput_1.BaseTextInput {
-    set text(_val) {
-        var _a, _b;
-        this._text = _val;
-        let c = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("input[data-order='primary']");
-        if (c) {
-            c.value = _val;
-        }
-        (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
-    }
-    set value(_val) {
-        var _a;
-        this._value = _val;
-        (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
-    }
-    get text() {
-        return this._text;
-    }
-    get value() {
-        return this._value;
-    }
     constructor(hostElement) {
         super(hostElement);
-        this._inputElement = this.createInputElement();
-        this._hostElement.appendChild(this._inputElement);
         this.textChangedEvents = new eventsManager_1.EventManager(this);
         this.valueChangedEvents = new eventsManager_1.EventManager(this);
         this.validityChangedEvents = new eventsManager_1.EventManager(this);
@@ -127,35 +139,25 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
     }
     createInputElement() {
-        let retval = document.createElement('div');
-        let inputElement = document.createElement('input');
+        let retval = super.createInputElement();
+        let inputElement = retval.firstChild;
         inputElement.setAttribute('type', 'text');
         inputElement.setAttribute('class', 'calc-input');
-        inputElement.setAttribute('data-order', 'primary'); // data-order is used to differentiate between the input element and the result element
         let innerSpan = document.createElement('span');
         innerSpan.setAttribute('class', 'calc-result');
-        innerSpan.setAttribute('data-order', 'secondary'); // ^
-        /// maybe this logic can also be added to the base component ?
-        inputElement.addEventListener('change', x => {
-            if (this._inputElement) {
-                let target = x.target;
-                this._text = target.value;
-                this.evaluate();
-            }
-        });
-        retval.appendChild(inputElement);
         retval.appendChild(innerSpan);
         retval.classList.add('calc-valid');
-        //retval.appendChild(resultElement);
         return retval;
     }
     evaluate() {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g;
         if (this._text.length > 0) {
             let expEvaluator = new expressionEvaluator_1.default();
             let computed = expEvaluator.evaluate(this._text);
-            let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span[data-order='secondary']");
-            if (computed) {
+            let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span");
+            let tempVal = this._value;
+            let tempValidity = this._isValid;
+            if (computed != undefined) {
                 this._value = computed;
                 this._isValid = true;
                 resultSpan.innerText = this._value.toString();
@@ -169,9 +171,12 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
                 (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.classList.add('calc-invalid');
                 (_e = this._inputElement) === null || _e === void 0 ? void 0 : _e.classList.remove('calc-valid');
             }
-            (_f = this.textChangedEvents) === null || _f === void 0 ? void 0 : _f.signal();
-            (_g = this.validityChangedEvents) === null || _g === void 0 ? void 0 : _g.signal();
-            (_h = this.valueChangedEvents) === null || _h === void 0 ? void 0 : _h.signal();
+            if (tempValidity !== this._isValid) {
+                (_f = this.validityChangedEvents) === null || _f === void 0 ? void 0 : _f.signal();
+            }
+            if (tempVal !== this._value) {
+                (_g = this.valueChangedEvents) === null || _g === void 0 ? void 0 : _g.signal();
+            }
         }
     }
 }
@@ -193,8 +198,6 @@ const eventsManager_1 = __webpack_require__(/*! ../core/eventsManager */ "./core
 class NumericInput extends baseTextInput_1.BaseTextInput {
     constructor(hostElement) {
         super(hostElement);
-        this._inputElement = this.createInputElement();
-        this._hostElement.appendChild(this._inputElement);
         this.textChangedEvents = new eventsManager_1.EventManager(this);
         this.valueChangedEvents = new eventsManager_1.EventManager(this);
         this.validityChangedEvents = new eventsManager_1.EventManager(this);
@@ -202,27 +205,15 @@ class NumericInput extends baseTextInput_1.BaseTextInput {
         this._valueChangedWrapper = new eventsManager_1.EventManagerWrapper(this.valueChangedEvents);
         this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
     }
-    createInputElement() {
-        let retval = document.createElement('div');
-        let inputElement = document.createElement('input');
-        inputElement.setAttribute('type', 'text');
-        /// maybe this logic can also be added to the base component ?
-        inputElement.addEventListener('change', x => {
-            if (this._inputElement) {
-                let target = x.target;
-                this._text = target.value;
-                this.evaluate();
-            }
-        });
-        retval.appendChild(inputElement);
-        return retval;
-    }
     evaluate() {
         var _a, _b, _c;
         if (this._text) {
-            this._value = Number(this._text);
+            let temp = Number(this._text);
+            if (this._value !== temp) {
+                (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+            }
+            this._value = temp;
             this._isValid = !isNaN(this._value);
-            (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
             (_b = this.textChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
             (_c = this.validityChangedEvents) === null || _c === void 0 ? void 0 : _c.signal();
         }
@@ -375,6 +366,9 @@ class EventManager {
     constructor(owner) {
         this.funcStack = [];
         this.ownerInstance = owner;
+    }
+    clear() {
+        this.funcStack = [];
     }
     subscribe(func) {
         this.funcStack.push(func);
@@ -758,7 +752,7 @@ function valueChanged(x) {
     let span = document.getElementById('valueId');
     if (span) {
         let val = NaN;
-        if (x.value) {
+        if (x.value != undefined) {
             val = x.value;
         }
         span.innerText = val.toFixed(4);

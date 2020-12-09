@@ -2,8 +2,8 @@ import { ITextInput } from "../components/base/baseTextInput";
 
 interface IEventManager<T> {
     subscribe(func: (x: T) => void) : void;
-
     signal(): void;
+    clear(): void;
 }
 
 
@@ -14,6 +14,10 @@ class EventManager<T> implements IEventManager<T> {
 
     constructor(owner: T) {
         this.ownerInstance = owner;
+    }
+
+    clear(): void {
+        this.funcStack = [];
     }
 
     subscribe(func: (x: T) => void): void {

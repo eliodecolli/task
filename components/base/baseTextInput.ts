@@ -17,7 +17,7 @@ interface ITextInput {
 }
 
 
-class BaseTextInput implements ITextInput {
+abstract class BaseTextInput implements ITextInput {
     protected _text: string;
     protected _value: number | null | undefined;
 
@@ -63,15 +63,22 @@ class BaseTextInput implements ITextInput {
     }
 
     public set text(_val: string) {
-        this._text = _val;
-        this.textChangedEvents?.signal();
+        if(this._text !== _val) {
+            let c = this._inputElement?.querySelector("input") as HTMLInputElement;
+            if(c) {
+                c.value = _val;
+            }
+            this._inputElement?.querySelector('input')?.dispatchEvent(new Event('input'));    // this will trigger, evaluate(), however there's perhaps a better way to do this?
+        }
     }
 
     public set value(_val: number | null | undefined) {
-        this._value = _val;
-        this.valueChangedEvents?.signal();
+        if(this._value !== _val) {
+            this._value = _val;
+            this.valueChangedEvents?.signal();
+        }
     }
-
+    
     constructor(hostElement: HTMLElement) {
         if(hostElement.childNodes.length > 0 ||
             hostElement.tagName !== "DIV") {
@@ -82,12 +89,48 @@ class BaseTextInput implements ITextInput {
         this._isValid = true;
         this._value = null;
         this._text = '';
-        this._inputElement = undefined;
+        this._inputElement = this.createInputElement();
+
+        this._hostElement.appendChild(this._inputElement);
 
         this._validityChangedWrapper = null;
         this._textChangedWrapper = null;
         this._valueChangedWrapper = null;
     }
+
+    public destroy(): void {
+        this._inputElement?.remove();
+
+        this.textChangedEvents?.clear();
+        this.valueChangedEvents?.clear();
+        this.validityChangedEvents?.clear();
+    }
+
+    protected abstract evaluate(): void;
+
+    protected createInputElement(): HTMLElement {
+        let retval = document.createElement('div');
+
+        let input = document.createElement('input');
+        input.setAttribute('type', 'text');
+
+        input.addEventListener('input', x => {
+            let target = x.target as HTMLInputElement;
+            if(target.value !== this._text) {
+                this._text = target.value;
+                this.evaluate();
+                this.textChangedEvents?.signal();
+            }
+        });
+
+        // input.addEventListener('change', x => { 
+        //     this.textChangedEvents?.signal();
+        // });
+
+        retval.appendChild(input);
+        return retval;
+    }
+
 }
 
 

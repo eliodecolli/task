@@ -39,7 +39,7 @@ calc.valueChanged?.subscribe(x => {
     let span = document.getElementById('valueId');
     if(span) {
         let val = NaN;
-        if(x.value) {
+        if(x.value != undefined) {
             val = x.value;
         }
         span.innerText = val.toFixed(4);

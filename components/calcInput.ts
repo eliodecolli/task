@@ -13,35 +13,9 @@ import {EventManager, EventManagerWrapper} from '../core/eventsManager'
 
 class CalculatorInput extends BaseTextInput {
 
-    public set text(_val: string) {
-        this._text = _val;
-
-        let c = this._inputElement?.querySelector("input[data-order='primary']") as HTMLInputElement;
-        if(c) {
-            c.value = _val;
-        }
-        this.textChangedEvents?.signal();
-    }
-
-    public set value(_val: number | null | undefined) {
-        this._value = _val;
-        this.valueChangedEvents?.signal();
-    }
-    
-    public get text(): string {
-        return this._text;
-    }
-
-    public get value(): number | null | undefined {
-        return this._value;
-    }
-
     constructor(hostElement: HTMLElement) {
         super(hostElement);
-
-        this._inputElement = this.createInputElement();
-        this._hostElement.appendChild(this._inputElement);
-
+        
         this.textChangedEvents = new EventManager<ITextInput>(this);
         this.valueChangedEvents = new EventManager<ITextInput>(this);
         this.validityChangedEvents = new EventManager<ITextInput>(this);
@@ -51,43 +25,33 @@ class CalculatorInput extends BaseTextInput {
         this._validityChangedWrapper = new EventManagerWrapper<ITextInput>(this.validityChangedEvents);
     }
 
-    private createInputElement(): HTMLElement {
-        let retval = document.createElement('div');
-        
-        let inputElement = document.createElement('input');
+    protected createInputElement(): HTMLElement {
+        let retval = super.createInputElement();
+
+        let inputElement = retval.firstChild as HTMLInputElement;
         inputElement.setAttribute('type', 'text');
         inputElement.setAttribute('class', 'calc-input');
-        inputElement.setAttribute('data-order', 'primary');    // data-order is used to differentiate between the input element and the result element
 
         let innerSpan = document.createElement('span');
         innerSpan.setAttribute('class', 'calc-result');
-        innerSpan.setAttribute('data-order', 'secondary');  // ^
 
-        /// maybe this logic can also be added to the base component ?
-        inputElement.addEventListener('change', x => {
-            if(this._inputElement) {
-                let target = x.target as HTMLInputElement;
-                this._text = target.value;
-                this.evaluate();
-            }
-        });
-
-        retval.appendChild(inputElement);
         retval.appendChild(innerSpan);
         retval.classList.add('calc-valid');
-        //retval.appendChild(resultElement);
 
         return retval;
     }
 
-    private evaluate(): void {
+    protected evaluate(): void {
         if(this._text.length > 0) {
             let expEvaluator = new ExpressionEvaluator();
             let computed = expEvaluator.evaluate(this._text);
 
-            let resultSpan = this._inputElement?.querySelector("span[data-order='secondary']") as HTMLSpanElement;
+            let resultSpan = this._inputElement?.querySelector("span") as HTMLSpanElement;
 
-            if(computed) {
+            let tempVal = this._value;
+            let tempValidity = this._isValid;
+
+            if(computed != undefined) {
                 this._value = computed;
                 this._isValid = true;
 
@@ -103,10 +67,14 @@ class CalculatorInput extends BaseTextInput {
                 this._inputElement?.classList.add('calc-invalid');
                 this._inputElement?.classList.remove('calc-valid');
             }
+            
+            if(tempValidity !== this._isValid) {
+                this.validityChangedEvents?.signal();
+            }
 
-            this.textChangedEvents?.signal();
-            this.validityChangedEvents?.signal();
-            this.valueChangedEvents?.signal();
+            if(tempVal !== this._value) {
+                this.valueChangedEvents?.signal();
+            }
         }
     }
 }

@@ -77,7 +77,8 @@ if(valBtn) {
     valBtn.onclick = _ => {
         let val = document.getElementById('inputValue') as HTMLInputElement;
         if(val) {
-            calc.value = Number(val.value);
+            let calcVal = val.value.length > 0 ? val.value : undefined;
+            calc.value = Number(calcVal);
         }
     };
 }
@@ -98,7 +99,8 @@ if(nValBtn) {
     nValBtn.onclick = _ => {
         let val = document.getElementById('inputValueNumeric') as HTMLInputElement;
         if(val) {
-            numeric.value = Number(val.value);
+            let numVal = val.value.length > 0 ? val.value : undefined;
+            numeric.value = Number(numVal);
         }
     };
 }
@@ -117,5 +119,9 @@ if(destroyBtn) {
     destroyBtn.onclick = _ => {
         numeric.destroy();
         calc.destroy();
+
+        // clear up the divs as well
+        document.getElementById('calcInputDiv')?.remove();
+        document.getElementById('numericInputDiv')?.remove();
     };
 }

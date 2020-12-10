@@ -12,7 +12,7 @@ import {EventManager, EventManagerWrapper} from '../core/eventsManager'
 
 
 class CalculatorInput extends BaseTextInput {
-
+    
     constructor(hostElement: HTMLElement) {
         super(hostElement);
         

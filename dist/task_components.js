@@ -71,8 +71,17 @@ class BaseTextInput {
     set value(_val) {
         var _a;
         if (this._value !== _val) {
-            this._value = _val;
-            (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+            if (_val !== null && _val !== undefined) {
+                this.text = _val.toString(); // this will trigger re-evaluation which in turn will dictate the result
+            }
+            else {
+                this._value = undefined;
+                this._text = '';
+                if (this._isValid) {
+                    this._isValid = false;
+                    (_a = this.validityChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+                }
+            }
         }
     }
     destroy() {
@@ -103,9 +112,6 @@ class BaseTextInput {
                 (_c = this.textChangedEvents) === null || _c === void 0 ? void 0 : _c.signal(); // we already determined that the text has changed
             }
         });
-        // input.addEventListener('change', x => { 
-        //     this.textChangedEvents?.signal();
-        // });
         retval.appendChild(input);
         return retval;
     }
@@ -779,7 +785,8 @@ if (valBtn) {
     valBtn.onclick = _ => {
         let val = document.getElementById('inputValue');
         if (val) {
-            calc.value = Number(val.value);
+            let calcVal = val.value.length > 0 ? val.value : undefined;
+            calc.value = Number(calcVal);
         }
     };
 }
@@ -797,7 +804,8 @@ if (nValBtn) {
     nValBtn.onclick = _ => {
         let val = document.getElementById('inputValueNumeric');
         if (val) {
-            numeric.value = Number(val.value);
+            let numVal = val.value.length > 0 ? val.value : undefined;
+            numeric.value = Number(numVal);
         }
     };
 }
@@ -812,8 +820,12 @@ if (nTxtBtn) {
 let destroyBtn = document.getElementById('destroyBtn');
 if (destroyBtn) {
     destroyBtn.onclick = _ => {
+        var _a, _b;
         numeric.destroy();
         calc.destroy();
+        // clear up the divs as well
+        (_a = document.getElementById('calcInputDiv')) === null || _a === void 0 ? void 0 : _a.remove();
+        (_b = document.getElementById('numericInputDiv')) === null || _b === void 0 ? void 0 : _b.remove();
     };
 }
 

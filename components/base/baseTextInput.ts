@@ -74,8 +74,17 @@ abstract class BaseTextInput implements ITextInput {
 
     public set value(_val: number | null | undefined) {
         if(this._value !== _val) {
-            this._value = _val;
-            this.valueChangedEvents?.signal();
+            if(_val !== null && _val !== undefined) {
+                this.text = _val.toString();  // this will trigger re-evaluation which in turn will dictate the result
+            }
+            else {
+                this._value = undefined;
+                this._text = '';
+                if(this._isValid) {
+                    this._isValid = false;
+                    this.validityChangedEvents?.signal();
+                }
+            }
         }
     }
     
@@ -132,11 +141,7 @@ abstract class BaseTextInput implements ITextInput {
                 this.textChangedEvents?.signal();   // we already determined that the text has changed
             }
         });
-
-        // input.addEventListener('change', x => { 
-        //     this.textChangedEvents?.signal();
-        // });
-
+        
         retval.appendChild(input);
         return retval;
     }

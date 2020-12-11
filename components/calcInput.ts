@@ -41,29 +41,44 @@ class CalculatorInput extends BaseTextInput {
         return retval;
     }
 
+    private validateInput(): void {
+        this._inputElement?.classList.remove('calc-invalid');
+        this._inputElement?.classList.add('calc-valid');
+    }
+
+    private invalidateInput(): void {
+        this._inputElement?.classList.add('calc-invalid');
+        this._inputElement?.classList.remove('calc-valid');
+    }
+
     protected evaluate(): void {
+        let resultSpan = this._inputElement?.querySelector("span") as HTMLSpanElement;
+
         if(this._text.length > 0) {
             let expEvaluator = new ExpressionEvaluator();
             let computed = expEvaluator.evaluate(this._text);
 
-            let resultSpan = this._inputElement?.querySelector("span") as HTMLSpanElement;
-            
             if(computed != undefined) {
                 this._value = computed;
                 this._isValid = true;
 
                 resultSpan.innerText = this._value.toString();
-                this._inputElement?.classList.remove('calc-invalid');
-                this._inputElement?.classList.add('calc-valid');
+                this.validateInput();
             }
             else {
                 this._value = undefined;
                 this._isValid = false;
 
                 resultSpan.innerText = '?';
-                this._inputElement?.classList.add('calc-invalid');
-                this._inputElement?.classList.remove('calc-valid');
+                this.invalidateInput();
             }
+        }
+        else {
+            this._value = undefined;
+            this._isValid = true;
+
+            resultSpan.innerText = '';
+            this.validateInput();
         }
     }
 }

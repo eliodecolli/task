@@ -1,3 +1,11 @@
+/*
+    File Name:
+        numericInput.ts
+    
+    Purpose:
+        Provides the logic to extend the BaseTextInput element as a control which converts a string to a number value.
+*/
+
 import { ITextInput, BaseTextInput } from "./base/baseTextInput";
 import { EventManager, EventManagerWrapper } from '../core/eventsManager'
 

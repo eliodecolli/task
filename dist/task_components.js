@@ -163,26 +163,40 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         retval.classList.add('calc-valid');
         return retval;
     }
+    validateInput() {
+        var _a, _b;
+        (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.classList.remove('calc-invalid');
+        (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.add('calc-valid');
+    }
+    invalidateInput() {
+        var _a, _b;
+        (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.classList.add('calc-invalid');
+        (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.remove('calc-valid');
+    }
     evaluate() {
-        var _a, _b, _c, _d, _e;
+        var _a;
+        let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span");
         if (this._text.length > 0) {
             let expEvaluator = new expressionEvaluator_1.default();
             let computed = expEvaluator.evaluate(this._text);
-            let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span");
             if (computed != undefined) {
                 this._value = computed;
                 this._isValid = true;
                 resultSpan.innerText = this._value.toString();
-                (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.remove('calc-invalid');
-                (_c = this._inputElement) === null || _c === void 0 ? void 0 : _c.classList.add('calc-valid');
+                this.validateInput();
             }
             else {
                 this._value = undefined;
                 this._isValid = false;
                 resultSpan.innerText = '?';
-                (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.classList.add('calc-invalid');
-                (_e = this._inputElement) === null || _e === void 0 ? void 0 : _e.classList.remove('calc-valid');
+                this.invalidateInput();
             }
+        }
+        else {
+            this._value = undefined;
+            this._isValid = true;
+            resultSpan.innerText = '';
+            this.validateInput();
         }
     }
 }
@@ -198,6 +212,13 @@ exports.default = CalculatorInput;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
+/*
+    File Name:
+        numericInput.ts
+    
+    Purpose:
+        Provides the logic to extend the BaseTextInput element as a control which converts a string to a number value.
+*/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const baseTextInput_1 = __webpack_require__(/*! ./base/baseTextInput */ "./components/base/baseTextInput.ts");
 const eventsManager_1 = __webpack_require__(/*! ../core/eventsManager */ "./core/eventsManager.ts");

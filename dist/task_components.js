@@ -31,7 +31,7 @@ class BaseTextInput {
         this._isValid = true;
         this._value = null;
         this._text = '';
-        this._inputElement = this.createInputElement();
+        this._inputElement = this._createInputElement();
         this._hostElement.appendChild(this._inputElement);
         this._validityChangedWrapper = null;
         this._textChangedWrapper = null;
@@ -59,30 +59,57 @@ class BaseTextInput {
         return this._value;
     }
     set text(_val) {
-        var _a, _b, _c;
-        if (this._text !== _val) {
-            let c = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("input");
-            if (c) {
-                c.value = _val;
-            }
-            (_c = (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.querySelector('input')) === null || _c === void 0 ? void 0 : _c.dispatchEvent(new Event('input')); // this will trigger, evaluate(), however there's perhaps a better way to do this?
-        }
+        this._setTextValue(_val, false);
     }
     set value(_val) {
+        this._setTextValue(_val === null || _val === void 0 ? void 0 : _val.toString(), true);
+    }
+    onValidityChanged(nVal) {
         var _a;
-        if (this._value !== _val) {
-            if (_val !== null && _val !== undefined) {
-                this.text = _val.toString(); // this will trigger re-evaluation which in turn will dictate the result
-            }
-            else {
-                this._value = undefined;
-                this._text = '';
-                if (this._isValid) {
-                    this._isValid = false;
-                    (_a = this.validityChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
-                }
+        if (this._isValid !== nVal) {
+            this._isValid = nVal;
+            (_a = this.validityChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+        }
+    }
+    onValueChanged(nVal) {
+        var _a;
+        if (this._value !== nVal) {
+            this._value = nVal;
+            (_a = this.valueChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+        }
+    }
+    onTextChanged(nVal) {
+        var _a;
+        if (this._text !== nVal) {
+            this._text = nVal;
+            (_a = this.textChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
+        }
+    }
+    _setTextValue(_val, isVal) {
+        let evaluatedVal = NaN;
+        let evaluatedText = '';
+        let evaluatedValidity = false;
+        if (isVal) { // here we can safely skip evaluation and [hopefully] gain some performance benefits, on the other hand this splits evaluation logic from the evaluate() function
+            evaluatedVal = Number(_val);
+            evaluatedText = _val;
+            evaluatedValidity = !isNaN(evaluatedVal);
+        }
+        else {
+            if (_val != null) {
+                evaluatedText = _val;
+                evaluatedVal = this._evaluate(evaluatedText);
+                evaluatedValidity = !Number.isNaN(evaluatedVal);
             }
         }
+        // trigger events
+        this.onTextChanged(evaluatedText);
+        this.onValueChanged(evaluatedVal);
+        this.onValidityChanged(evaluatedValidity);
+        // update UI
+        this._setUIResult(Number.isNaN(evaluatedVal) ? '?' :
+            (evaluatedVal !== undefined ? evaluatedVal.toString() : '')); // I don't really like the look of this but ok
+        this._setValidUI(evaluatedValidity);
+        this._setUIText(evaluatedText);
     }
     destroy() {
         var _a, _b, _c, _d;
@@ -91,28 +118,22 @@ class BaseTextInput {
         (_c = this.validityChangedEvents) === null || _c === void 0 ? void 0 : _c.clear();
         (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.remove();
     }
-    createInputElement() {
+    _setUIText(text) {
+        var _a;
+        let input = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector('input');
+        input.value = text;
+    }
+    _createInputElement() {
+        var _a;
         let retval = document.createElement('div');
         let input = document.createElement('input');
         input.setAttribute('type', 'text');
         input.addEventListener('input', x => {
-            var _a, _b, _c;
             let target = x.target;
-            if (target.value !== this._text) {
-                let tempVal = this._value;
-                let tempValidity = this._isValid;
-                this._text = target.value;
-                this.evaluate();
-                if (tempValidity !== this._isValid) {
-                    (_a = this.validityChangedEvents) === null || _a === void 0 ? void 0 : _a.signal();
-                }
-                if (tempVal !== this._value) {
-                    (_b = this.valueChangedEvents) === null || _b === void 0 ? void 0 : _b.signal();
-                }
-                (_c = this.textChangedEvents) === null || _c === void 0 ? void 0 : _c.signal(); // we already determined that the text has changed
-            }
+            this._setTextValue(target.value, false);
         });
         retval.appendChild(input);
+        (_a = retval.classList) === null || _a === void 0 ? void 0 : _a.add('input-valid');
         return retval;
     }
 }
@@ -129,11 +150,11 @@ exports.BaseTextInput = BaseTextInput;
 
 
 /*
-    File Name:
-        calcInput.ts
-    
-    Purpose:
-        Provides the logic to extend the BaseTextInput element as an expression evaluator.
+   File Name:
+       calcInput.ts
+   
+   Purpose:
+       Provides the logic to extend the BaseTextInput element as an expression evaluator.
 */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -152,52 +173,44 @@ class CalculatorInput extends baseTextInput_1.BaseTextInput {
         this._valueChangedWrapper = new eventsManager_1.EventManagerWrapper(this.valueChangedEvents);
         this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
     }
-    createInputElement() {
-        let retval = super.createInputElement();
+    _createInputElement() {
+        var _a;
+        let retval = super._createInputElement();
         let inputElement = retval.firstChild;
         inputElement.setAttribute('type', 'text');
         inputElement.setAttribute('class', 'calc-input');
         let innerSpan = document.createElement('span');
         innerSpan.setAttribute('class', 'calc-result');
         retval.appendChild(innerSpan);
-        retval.classList.add('calc-valid');
+        (_a = retval.classList) === null || _a === void 0 ? void 0 : _a.add('calc-div');
         return retval;
     }
-    validateInput() {
-        var _a, _b;
-        (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.classList.remove('calc-invalid');
-        (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.add('calc-valid');
-    }
-    invalidateInput() {
-        var _a, _b;
-        (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.classList.add('calc-invalid');
-        (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.remove('calc-valid');
-    }
-    evaluate() {
-        var _a;
-        let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span");
-        if (this._text.length > 0) {
-            let expEvaluator = new expressionEvaluator_1.default();
-            let computed = expEvaluator.evaluate(this._text);
-            if (computed != undefined) {
-                this._value = computed;
-                this._isValid = true;
-                resultSpan.innerText = this._value.toString();
-                this.validateInput();
-            }
-            else {
-                this._value = undefined;
-                this._isValid = false;
-                resultSpan.innerText = '?';
-                this.invalidateInput();
-            }
+    _setValidUI(valid) {
+        var _a, _b, _c, _d;
+        if (valid) {
+            (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.classList.remove('input-invalid');
+            (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.add('input-valid');
         }
         else {
-            this._value = undefined;
-            this._isValid = true;
-            resultSpan.innerText = '';
-            this.validateInput();
+            (_c = this._inputElement) === null || _c === void 0 ? void 0 : _c.classList.add('input-invalid');
+            (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.classList.remove('input-valid');
         }
+    }
+    _setUIResult(result) {
+        var _a;
+        let resultSpan = (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.querySelector("span");
+        resultSpan.innerText = result;
+    }
+    _evaluate(expression) {
+        let retval = NaN;
+        if (expression.length > 0) {
+            let expEvaluator = new expressionEvaluator_1.default();
+            retval = expEvaluator.evaluate(expression);
+        }
+        else {
+            retval = undefined;
+        }
+        return retval;
     }
 }
 exports.default = CalculatorInput;
@@ -232,11 +245,34 @@ class NumericInput extends baseTextInput_1.BaseTextInput {
         this._valueChangedWrapper = new eventsManager_1.EventManagerWrapper(this.valueChangedEvents);
         this._validityChangedWrapper = new eventsManager_1.EventManagerWrapper(this.validityChangedEvents);
     }
-    evaluate() {
-        if (this._text) {
-            this._value = Number(this._text);
-            this._isValid = !isNaN(this._value);
+    _setUIResult(result) {
+        // no overrides here as we do not have a result span
+    }
+    _setValidUI(valid) {
+        var _a, _b, _c, _d;
+        if (valid) {
+            (_a = this._inputElement) === null || _a === void 0 ? void 0 : _a.classList.remove('input-invalid');
+            (_b = this._inputElement) === null || _b === void 0 ? void 0 : _b.classList.add('input-valid');
         }
+        else {
+            (_c = this._inputElement) === null || _c === void 0 ? void 0 : _c.classList.remove('input-valid');
+            (_d = this._inputElement) === null || _d === void 0 ? void 0 : _d.classList.add('input-invalid');
+        }
+    }
+    _evaluate(expression) {
+        let retval = NaN;
+        if (expression.length > 0) {
+            retval = Number(expression);
+        }
+        else {
+            retval = undefined;
+        }
+        return retval;
+    }
+    _createInputElement() {
+        let retval = super._createInputElement();
+        retval.classList.add('input-div');
+        return retval;
     }
 }
 exports.default = NumericInput;
@@ -444,7 +480,7 @@ class ExpressionEvaluator {
         }
         catch (e) {
             this._lastError = e;
-            return undefined;
+            return NaN;
         }
     }
 }

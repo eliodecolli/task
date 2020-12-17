@@ -1,4 +1,4 @@
-/*
+ /*
     File Name:
         calcInput.ts
     
@@ -25,8 +25,8 @@ class CalculatorInput extends BaseTextInput {
         this._validityChangedWrapper = new EventManagerWrapper<ITextInput>(this.validityChangedEvents);
     }
 
-    protected createInputElement(): HTMLElement {
-        let retval = super.createInputElement();
+    protected _createInputElement(): HTMLElement {
+        let retval = super._createInputElement();
 
         let inputElement = retval.firstChild as HTMLInputElement;
         inputElement.setAttribute('type', 'text');
@@ -36,50 +36,37 @@ class CalculatorInput extends BaseTextInput {
         innerSpan.setAttribute('class', 'calc-result');
 
         retval.appendChild(innerSpan);
-        retval.classList.add('calc-valid');
-
+        retval.classList?.add('calc-div');
         return retval;
     }
 
-    private validateInput(): void {
-        this._inputElement?.classList.remove('calc-invalid');
-        this._inputElement?.classList.add('calc-valid');
-    }
-
-    private invalidateInput(): void {
-        this._inputElement?.classList.add('calc-invalid');
-        this._inputElement?.classList.remove('calc-valid');
-    }
-
-    protected evaluate(): void {
-        let resultSpan = this._inputElement?.querySelector("span") as HTMLSpanElement;
-
-        if(this._text.length > 0) {
-            let expEvaluator = new ExpressionEvaluator();
-            let computed = expEvaluator.evaluate(this._text);
-
-            if(computed != undefined) {
-                this._value = computed;
-                this._isValid = true;
-
-                resultSpan.innerText = this._value.toString();
-                this.validateInput();
-            }
-            else {
-                this._value = undefined;
-                this._isValid = false;
-
-                resultSpan.innerText = '?';
-                this.invalidateInput();
-            }
+    protected _setValidUI(valid: boolean) {
+        if(valid) {
+            this._inputElement?.classList.remove('input-invalid');
+            this._inputElement?.classList.add('input-valid');
         }
         else {
-            this._value = undefined;
-            this._isValid = true;
-
-            resultSpan.innerText = '';
-            this.validateInput();
+            this._inputElement?.classList.add('input-invalid');
+            this._inputElement?.classList.remove('input-valid');
         }
+    }
+
+    protected _setUIResult(result: string) {
+        let resultSpan = this._inputElement?.querySelector("span") as HTMLSpanElement;
+        resultSpan.innerText = result;
+    }
+
+    protected _evaluate(expression: string): number | undefined {
+        let retval: number | undefined = NaN;
+
+        if(expression.length > 0) {
+            let expEvaluator = new ExpressionEvaluator();
+            retval = expEvaluator.evaluate(expression);
+        }
+        else {
+            retval = undefined;
+        }
+        return retval;
     }
 }
 

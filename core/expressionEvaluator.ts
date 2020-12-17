@@ -13,7 +13,7 @@ class ExpressionEvaluator {
         this._lastError = undefined;
     }
 
-    evaluate(expression: string) : number | undefined {
+    evaluate(expression: string) : number {
         try{
             let tokenizer = new Tokenizer(expression);
 
@@ -26,7 +26,7 @@ class ExpressionEvaluator {
         }
         catch(e) {
             this._lastError = e;
-            return undefined;
+            return NaN;
         }
     }
 }

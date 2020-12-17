@@ -63,29 +63,64 @@ abstract class BaseTextInput implements ITextInput {
     }
 
     public set text(_val: string) {
-        if(this._text !== _val) {
-            let c = this._inputElement?.querySelector("input") as HTMLInputElement;
-            if(c) {
-                c.value = _val;
-            }
-            this._inputElement?.querySelector('input')?.dispatchEvent(new Event('input'));    // this will trigger, evaluate(), however there's perhaps a better way to do this?
-        }
+        this._setTextValue(_val, false);
     }
 
     public set value(_val: number | null | undefined) {
-        if(this._value !== _val) {
-            if(_val !== null && _val !== undefined) {
-                this.text = _val.toString();  // this will trigger re-evaluation which in turn will dictate the result
-            }
-            else {
-                this._value = undefined;
-                this._text = '';
-                if(this._isValid) {
-                    this._isValid = false;
-                    this.validityChangedEvents?.signal();
-                }
+        this._setTextValue(_val?.toString(), true);
+    }
+
+    protected onValidityChanged(nVal: boolean): void {
+        if(this._isValid !== nVal) {
+            this._isValid = nVal;
+            this.validityChangedEvents?.signal();
+        }
+    }
+
+    protected onValueChanged(nVal: number | undefined): void {
+        if(this._value !== nVal) {
+            this._value = nVal;
+            this.valueChangedEvents?.signal();
+        }
+    }
+
+    protected onTextChanged(nVal: string): void {
+        if(this._text !== nVal) {
+            this._text = nVal;
+            this.textChangedEvents?.signal();
+        }
+    }
+
+    protected _setTextValue(_val:  string | undefined | null, isVal: boolean) {
+        let evaluatedVal: number | undefined = NaN;
+        let evaluatedText: string = '';
+        let evaluatedValidity: boolean = false;
+
+        if(isVal) {  // here we can safely skip evaluation and [hopefully] gain some performance benefits, on the other hand this splits evaluation logic from the evaluate() function
+            evaluatedVal = Number(_val);
+            evaluatedText = <string>_val;
+            evaluatedValidity = !isNaN(evaluatedVal);
+        }
+        else {
+            if(_val != null) {
+                evaluatedText = _val;
+                evaluatedVal = this._evaluate(evaluatedText);
+                evaluatedValidity = !Number.isNaN(evaluatedVal);
             }
         }
+
+        // trigger events
+        this.onTextChanged(evaluatedText);
+        this.onValueChanged(evaluatedVal);
+        this.onValidityChanged(evaluatedValidity);
+
+
+        // update UI
+        this._setUIResult(Number.isNaN(evaluatedVal) ? '?' : 
+                                                            (evaluatedVal !== undefined ? evaluatedVal.toString() : ''));   // I don't really like the look of this but ok
+
+        this._setValidUI(evaluatedValidity);
+        this._setUIText(evaluatedText);
     }
     
     constructor(hostElement: HTMLElement) {
@@ -98,7 +133,7 @@ abstract class BaseTextInput implements ITextInput {
         this._isValid = true;
         this._value = null;
         this._text = '';
-        this._inputElement = this.createInputElement();
+        this._inputElement = this._createInputElement();
 
         this._hostElement.appendChild(this._inputElement);
 
@@ -115,9 +150,18 @@ abstract class BaseTextInput implements ITextInput {
         this._inputElement?.remove();
     }
 
-    protected abstract evaluate(): void;
+    protected abstract _evaluate(expression: string): number | undefined;
 
-    protected createInputElement(): HTMLElement {
+    protected abstract _setUIResult(result: string): void;     // updates UI with the result of the evaluation
+
+    protected abstract _setValidUI(valid: boolean): void;      // updates UI with the validity indicator
+
+    protected _setUIText(text: string): void {
+        let input = this._inputElement?.querySelector('input') as HTMLInputElement;
+        input.value = text;
+    }
+
+    protected _createInputElement(): HTMLElement {
         let retval = document.createElement('div');
 
         let input = document.createElement('input');
@@ -125,24 +169,11 @@ abstract class BaseTextInput implements ITextInput {
 
         input.addEventListener('input', x => {
             let target = x.target as HTMLInputElement;
-            if(target.value !== this._text) {
-                let tempVal = this._value;
-                let tempValidity = this._isValid;
-
-                this._text = target.value;
-                this.evaluate();
-                
-                if(tempValidity !== this._isValid) {
-                    this.validityChangedEvents?.signal();
-                }
-                if(tempVal !== this._value) {
-                    this.valueChangedEvents?.signal();
-                }
-                this.textChangedEvents?.signal();   // we already determined that the text has changed
-            }
+            this._setTextValue(target.value, false);
         });
         
         retval.appendChild(input);
+        retval.classList?.add('input-valid');
         return retval;
     }
 

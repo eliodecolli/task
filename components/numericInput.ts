@@ -23,11 +23,38 @@ class NumericInput extends BaseTextInput {
         this._validityChangedWrapper = new EventManagerWrapper<ITextInput>(this.validityChangedEvents);
     }
 
-    protected evaluate(): void {
-        if(this._text) {
-            this._value = Number(this._text);
-            this._isValid = !isNaN(this._value);
+    protected _setUIResult(result: string) {
+        // no overrides here as we do not have a result span
+    }
+
+    protected _setValidUI(valid: boolean) {
+        if(valid) {
+            this._inputElement?.classList.remove('input-invalid');
+            this._inputElement?.classList.add('input-valid');
         }
+        else {
+            this._inputElement?.classList.remove('input-valid');
+            this._inputElement?.classList.add('input-invalid');
+        }
+    }
+
+    protected _evaluate(expression: string): number | undefined {
+        let retval: number | undefined = NaN;
+
+        if(expression.length > 0) {
+            retval = Number(expression);
+        }
+        else {
+            retval = undefined;
+        }
+
+        return retval;
+    }
+
+    protected _createInputElement(): HTMLElement {
+        let retval = super._createInputElement();
+        retval.classList.add('input-div');
+        return retval;
     }
 
 }
